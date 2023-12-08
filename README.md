@@ -69,6 +69,12 @@ pero es un poco difícil de usar y los elementos no son bonitos.
 **LVGL** parece una mejor opción  
 https://daumemo.com/lcd-gui-with-lvgl-with-esp-32-diy-generator-part-15/  
 
+Varios iconos se pueden obtener de estas páginas  
+https://klarsys.github.io/angular-material-icons/  
+https://fontawesome.com/v4/icons/  
+https://github.com/Paul-Reed/weather-icons-lite/blob/master/css_mappings.md  
+https://fonts.google.com/icons  
+
 ## Ventiladores
 Los ventiladores se conectan a un módulo DRV8833 (puente H) y se controlan 
 con 2 pines que envían señales PWM para poder regular la velocidad.  
