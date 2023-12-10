@@ -18,6 +18,9 @@ En la carpeta "dibujo" hay bocetos de la interfaz gráfica.
 
 Los programas utilizan diversas librerías para cada sensor y actuador.  
 
+Cambiar configuración para que los warnings no sean tratados como errores  
+https://forum.arduino.cc/t/esp32-unused-variable-compile-error/1039022/15  
+
 ## Pantalla
 2.4 pulgadas, resolución 320x240, interfaz SPI, controlador ILI9341.  
 http://www.lcdwiki.com/2.4inch_SPI_Module_ILI9341_SKU:MSP2402  
@@ -26,11 +29,14 @@ Librería **TFT_eSPI**.
 Permite mostrar gráficos de diferentes tipos y también implementa la lectura del panel touch.  
 https://github.com/Bodmer/TFT_eSPI  
 (tutorial 1: https://electropeak.com/learn/interfacing-2-8-inch-tft-lcd-touch-screen-with-esp32)  
+No tine documentación oficial, pero esta sirve  
+https://github.com/Ambercroft/TFT_eSPI/wiki  
+
 Se puede usar junto a la librería **tft_eWidget** que define algunos 
 elementos para interfaces gráficas, pero no son muy bonitos  
 https://github.com/Bodmer/TFT_eWidget  
 
-Librería anterior **Adafruit_ILI9341**  
+Librería que se probó anteriormente **Adafruit_ILI9341**  
 https://github.com/adafruit/Adafruit_ILI9341  
 Esa libreria depende de **Adafruit_GFX** que permite dibujar primitivas gráficas y texto  
 https://learn.adafruit.com/adafruit-gfx-graphics-library/graphics-primitives  
@@ -66,8 +72,17 @@ La interfaz gráfica (GUI) se puede crear con diferentes librerías a través de
 Una librería es **GUIslice** que tiene un editor gráfico **Gluislice Builder**, 
 pero es un poco difícil de usar y los elementos no son bonitos.  
 
-**LVGL** parece una mejor opción  
+**LVGL** parece una mejor opción, pero aprender a usarla llevará tiempo  
 https://daumemo.com/lcd-gui-with-lvgl-with-esp-32-diy-generator-part-15/  
+
+**ESPHome** parece interesante, pero también llevará tiempo aprender a usarla  
+https://esphome.io  
+
+Se puede usar **displayio** con **CircuitPyhon**, pero implica volver a programar todo  
+https://learn.adafruit.com/circuitpython-display-support-using-displayio  
+
+Colo picker 565  
+https://rgbcolorpicker.com/565  
 
 Varios iconos se pueden obtener de estas páginas  
 https://klarsys.github.io/angular-material-icons/  
