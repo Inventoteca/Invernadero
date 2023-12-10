@@ -21,7 +21,7 @@ TFT_eSPI tft = TFT_eSPI(); // objeto para manejar la pantalla
 // Set REPEAT_CAL to true instead of false to run calibration
 // again, otherwise it will only be done once.
 // Repeat calibration if you change the screen rotation.
-#define REPEAT_CAL false
+#define REPEAT_CAL true
 // en lugar de usar este define se usará un botón para iniciar la calibración
 
 // Keypad start position, key sizes and spacing
@@ -73,7 +73,8 @@ TFT_eSPI_Button key[15];
 // se definen en "Setup42_ILI9341_ESP32.h" de la librería TFT_eSPI
 
 // sensor de humedad de suelo
-#define PIN_SUELO 36 //lectura analogica
+#define PIN_SUELOD 34 //lectura digital
+#define PIN_SUELOA 35 //lectura analogica
 
 // ventiladores - 2 salidas PWM
 #define PIN_VENT1 32
@@ -85,21 +86,22 @@ TFT_eSPI_Button key[15];
 #define PIN_B 27
 
 // bomba de agua
-#define PIN_BOMBA 12
+#define PIN_BOMBA 14
 
 // atomizador/spray
 #define PIN_SPRAY 13
 
 // sensor de temperatura y humedad
 #include "DHT.h"
-#define PIN_DHT 14
+#define PIN_DHT 15
 DHT dht(PIN_DHT, DHT22); //objeto para leer el sensor DHT22
 
 //------------------------------------------------------------------------------------------
 
 void setup() {
   // configurar entradas y salidas
-  pinMode(PIN_SUELO, INPUT);
+  pinMode(PIN_SUELOD, INPUT);
+  pinMode(PIN_SUELOA, INPUT);
   pinMode(PIN_VENT1, OUTPUT);
   pinMode(PIN_VENT2, OUTPUT);
   pinMode(PIN_R, OUTPUT);
@@ -108,7 +110,7 @@ void setup() {
   pinMode(PIN_BOMBA, OUTPUT);
   pinMode(PIN_SPRAY, OUTPUT);
   //
-  analogRead(PIN_SUELO); //descartar primera lectura
+  analogRead(PIN_SUELOA); //descartar primera lectura
   analogWrite(PIN_VENT1, 0);
   analogWrite(PIN_VENT2, 0);
   analogWrite(PIN_R, 0); //si el pin es DAC no saca PWM?
