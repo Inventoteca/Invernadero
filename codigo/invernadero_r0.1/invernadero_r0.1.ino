@@ -9,6 +9,20 @@
 // to hold touch screen calibration data
 #include "FS.h"
 
+// Iconos
+#include "th32.h"
+#include "drop32.h"
+#include "grass32.h"
+#include "fan32.h"
+#include "lamp32.h"
+#include "sprink32.h"
+#include "pump32.h"
+
+// Colores
+#define FONDO 0x1084
+#define PANEL 0x526d
+#define GRIS70 0x4a69
+
 #include <SPI.h>
 #include <TFT_eSPI.h>      // Hardware-specific library
 TFT_eSPI tft = TFT_eSPI(); // objeto para manejar la pantalla
@@ -21,7 +35,7 @@ TFT_eSPI tft = TFT_eSPI(); // objeto para manejar la pantalla
 // Set REPEAT_CAL to true instead of false to run calibration
 // again, otherwise it will only be done once.
 // Repeat calibration if you change the screen rotation.
-#define REPEAT_CAL true
+#define REPEAT_CAL false
 // en lugar de usar este define se usará un botón para iniciar la calibración
 
 // Keypad start position, key sizes and spacing
@@ -233,17 +247,31 @@ void loop(void) {
 void drawUI() {
   //tft.fillScreen(TFT_BLACK);
   //tft.drawRoundRect(10, 10, 150, 220, 10, tft.color565(19, 19, 19));
-  tft.fillScreen(6339);
-  tft.fillRoundRect(10, 10, 150, 220, 6, 19049); //tft.color565(19, 19, 19)
-  tft.fillRoundRect(20, 20, 130, 60, 10, TFT_BLACK);
-  tft.fillRoundRect(20, 90, 130, 60, 20, TFT_BLACK);
-  tft.fillRoundRect(20, 160, 130, 60, 30, TFT_BLACK);
+  tft.fillScreen(FONDO);
+  tft.fillRoundRect(10, 10, 160, 220, 4, PANEL); //tft.color565(19, 19, 19)
+  tft.fillRoundRect(20, 20, 140, 60, 20, TFT_BLACK);
+  tft.fillRoundRect(20, 90, 140, 60, 20, TFT_BLACK);
+  tft.fillRoundRect(20, 160, 140, 60, 20, TFT_BLACK);
   tft.setFreeFont(&FreeMono24pt7b);  // Choose a nicefont that fits box
   tft.setTextColor(TFT_WHITE);     // Set the font colour
   tft.drawString("50%", 60, 30);
   tft.drawString("10%", 60, 100);
   tft.drawString("26ºC", 60, 170);
   //tft.fillRect(10, 10, 150, 220, TFT_DARKGREY);
+  tft.drawXBitmap(40-16, 50-16, th32_bits, 32, 32, TFT_CYAN);
+  tft.drawXBitmap(40-16, 120-16, drop32_bits, 32, 32, TFT_CYAN);
+  tft.drawXBitmap(40-16, 190-16, grass32_bits, 32, 32, TFT_CYAN);
+  //tft.drawXBitmap(x, y, logo, logoWidth, logoHeight, TFT_WHITE, TFT_RED);
+  tft.fillRoundRect(180, 50, 60, 60, 4, PANEL);
+  tft.fillRoundRect(250, 50, 60, 60, 4, PANEL);
+  tft.fillRoundRect(180, 130, 60, 60, 4, PANEL);
+  tft.fillRoundRect(250, 130, 60, 60, 4, PANEL);
+  //
+  tft.drawXBitmap(210-16, 80-16, fan32_bits, 32, 32, TFT_CYAN);
+  tft.drawXBitmap(280-16, 80-16, lamp32_bits, 32, 32, TFT_CYAN);
+  tft.drawXBitmap(210-16, 160-16, sprink32_bits, 32, 32, TFT_CYAN);
+  tft.drawXBitmap(280-16, 160-16, pump32_bits, 32, 32, TFT_CYAN);
+  
 }
 
 //------------------------------------------------------------------------------------------

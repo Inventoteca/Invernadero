@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666662 8.4666662"
+   version="1.1"
+   id="svg1"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#111111"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     showguides="true" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g3"
+       transform="scale(1.3333333)"
+       style="stroke-width:0.75">
+      <rect
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.198437;stroke-linecap:round;stroke-linejoin:round"
+         id="rect1"
+         width="6.3499994"
+         height="6.3499994"
+         x="0"
+         y="0" />
+      <g
+         style="fill:#ffffff;stroke-width:0.75"
+         id="g15"
+         transform="scale(0.26458333)">
+        <path
+           d="M 0,0 H 24 V 24 H 0 Z"
+           fill="none"
+           id="path1-08"
+           style="stroke-width:0.75" />
+        <path
+           d="m 3.55,18.54 1.41,1.41 1.79,-1.8 -1.41,-1.41 z M 11,22.45 h 2 V 19.5 H 11 Z M 4,10.5 H 1 v 2 H 4 Z M 15,6.31 V 1.5 H 9 V 6.31 C 7.21,7.35 6,9.28 6,11.5 c 0,3.31 2.69,6 6,6 3.31,0 6,-2.69 6,-6 0,-2.22 -1.21,-4.15 -3,-5.19 z m 5,4.19 v 2 h 3 v -2 z m -2.76,7.66 1.79,1.8 1.41,-1.41 -1.8,-1.79 z"
+           id="path2-3"
+           style="stroke-width:0.75" />
+      </g>
+    </g>
+  </g>
+</svg>
