@@ -1,23 +1,22 @@
 #include <WiFi.h>
+const char *ssid = "Invernadero";    // Nombre del punto de acceso
+const char *password = "1234567890";  // Contraseña del punto de acceso
+WiFiServer server(80); // objeto server
+
 #include <DHT.h>
-
-const char *ssid = "ESP32-AP";    // Nombre del punto de acceso
-const char *password = "123456789";  // Contraseña del punto de acceso
-
-WiFiServer server(80);
-
-#define DHTPIN 4  // El pin al que está conectado el pin de datos del DHT22
+#define DHTPIN 15  // El pin al que está conectado el pin de datos del DHT22
 #define DHTTYPE DHT22  // Tipo de sensor DHT, podría ser DHT11 también
+DHT dht(DHTPIN, DHTTYPE); //objeto para el sensor DHT
 
-#define BOMBA_PIN 12  // Pin para la bomba
+#define BOMBA_PIN 14  // Pin para la bomba
 #define HUMIDIFICADOR_PIN 13  // Pin para el humidificador
-#define VENTILADOR_PIN_1 15  // Pin para el ventilador 1
-#define VENTILADOR_PIN_2 14   // Pin para el ventilador 2
-#define RGB_PIN_R 5  // Pin para el componente R de la tira RGB
-#define RGB_PIN_G 18 // Pin para el componente G de la tira RGB
-#define RGB_PIN_B 19 // Pin para el componente B de la tira RGB
-
-DHT dht(DHTPIN, DHTTYPE);
+#define VENTILADOR_PIN_1 32  // Pin para el ventilador 1
+#define VENTILADOR_PIN_2 33   // Pin para el ventilador 2
+#define PIN_R 25  // Pin para el componente R de la tira RGB
+#define PIN_G 26 // Pin para el componente G de la tira RGB
+#define PIN_B 27 // Pin para el componente B de la tira RGB
+#define PIN_SUELOD 34 //lectura digital
+#define PIN_SUELOA 35 //lectura analogica
 
 float temperatura = 0.0;
 int humedad = 0.0;
@@ -66,13 +65,13 @@ void handleControlRequest(WiFiClient &client, String device, String state) {
     analogWrite(VENTILADOR_PIN_2, map(sliderValues[1], 0, 10, 0, 255));
   } else if (device == "R") {
     sliderValues[2] = state.toInt();
-    analogWrite(RGB_PIN_R, map(sliderValues[2], 0, 10, 0, 255));
+    analogWrite(PIN_R, map(sliderValues[2], 0, 10, 0, 255));
   } else if (device == "G") {
     sliderValues[3] = state.toInt();
-    analogWrite(RGB_PIN_G, map(sliderValues[3], 0, 10, 0, 255));
+    analogWrite(PIN_G, map(sliderValues[3], 0, 10, 0, 255));
   } else if (device == "B") {
     sliderValues[4] = state.toInt();
-    analogWrite(RGB_PIN_B, map(sliderValues[4], 0, 10, 0, 255));
+    analogWrite(PIN_B, map(sliderValues[4], 0, 10, 0, 255));
   }
 
   sendResponse(client, "OK");
@@ -80,15 +79,26 @@ void handleControlRequest(WiFiClient &client, String device, String state) {
 
 void setup() {
   Serial.begin(115200);
-  pinMode(A0, INPUT); // Pin analógico A0 para el sensor de humedad del suelo
+
+  pinMode(PIN_SUELOD, INPUT);
+  pinMode(PIN_SUELOA, INPUT);
   pinMode(BOMBA_PIN, OUTPUT);
   pinMode(HUMIDIFICADOR_PIN, OUTPUT);
   pinMode(VENTILADOR_PIN_1, OUTPUT);
   pinMode(VENTILADOR_PIN_2, OUTPUT);
-  pinMode(RGB_PIN_R, OUTPUT);
-  pinMode(RGB_PIN_G, OUTPUT);
-  pinMode(RGB_PIN_B, OUTPUT);
-
+  pinMode(PIN_R, OUTPUT);
+  pinMode(PIN_G, OUTPUT);
+  pinMode(PIN_B, OUTPUT);
+  //
+  analogRead(PIN_SUELOA); //descartar primera lectura
+  analogWrite(VENTILADOR_PIN_1, 0);
+  analogWrite(VENTILADOR_PIN_2, 0);
+  analogWrite(PIN_R, 0); //si el pin es DAC no saca PWM?
+  analogWrite(PIN_G, 0);
+  analogWrite(PIN_B, 0);
+  digitalWrite(BOMBA_PIN, HIGH); //relevador apagado en HIGH
+  digitalWrite(HUMIDIFICADOR_PIN, HIGH); //relevador apagado en HIGH
+  //
   dht.begin();
 
   // Inicializar el punto de acceso
@@ -102,9 +112,10 @@ void setup() {
 }
 
 void loop() {
-  WiFiClient client = server.available();
-  if (client) {
+  WiFiClient client = server.available(); //ver la conexión de clientes
+  if (client) { //si se conecta un nuevo cliente
     Serial.println("Nuevo cliente");
+    
     String html = "<html><head><meta name='viewport' content='width=device-width, initial-scale=1.0'>";
     html += "<style>.slider { width: 50%; }</style></head><body>";
 
