@@ -1,6 +1,6 @@
 #include <WiFi.h>
 const char *ssid = "Invernadero";    // Nombre del punto de acceso
-const char *password = "1234567890";  // Contraseña del punto de acceso
+const char *password = "12345678";  // Contraseña del punto de acceso
 WiFiServer server(80); // objeto server
 
 #include <DHT.h>
@@ -12,8 +12,8 @@ DHT dht(DHTPIN, DHTTYPE); //objeto para el sensor DHT
 #define HUMIDIFICADOR_PIN 13  // Pin para el humidificador
 #define VENTILADOR_PIN_1 32  // Pin para el ventilador 1
 #define VENTILADOR_PIN_2 33   // Pin para el ventilador 2
-#define PIN_R 25  // Pin para el componente R de la tira RGB
-#define PIN_G 26 // Pin para el componente G de la tira RGB
+#define PIN_R 26  // Pin para el componente R de la tira RGB
+#define PIN_G 25 // Pin para el componente G de la tira RGB
 #define PIN_B 27 // Pin para el componente B de la tira RGB
 #define PIN_SUELOD 34 //lectura digital
 #define PIN_SUELOA 35 //lectura analogica
@@ -25,6 +25,7 @@ bool bombaEncendida = false;
 bool humidificadorEncendido = false;
 int sliderValues[5] = {0, 0, 0, 0, 0};
 
+// Respuesta que se envía al cliente cuando este hace una petición
 void sendResponse(WiFiClient &client, const String &response) {
   client.println("HTTP/1.1 200 OK");
   client.println("Content-type: text/html");
@@ -33,6 +34,7 @@ void sendResponse(WiFiClient &client, const String &response) {
   client.println(response);
 }
 
+// String con valores de los sensores y los actuadores
 void handleDataRequest(WiFiClient &client) {
   String response = "{";
   response += "\"temperatura\":" + String(temperatura) + ",";
@@ -49,6 +51,7 @@ void handleDataRequest(WiFiClient &client) {
   sendResponse(client, response);
 }
 
+// Cambiar las salidas de acuerdo a los valores del web server
 void handleControlRequest(WiFiClient &client, String device, String state) {
   if (device == "bomba") {
     bombaEncendida = (state == "true");
@@ -78,8 +81,7 @@ void handleControlRequest(WiFiClient &client, String device, String state) {
 }
 
 void setup() {
-  Serial.begin(115200);
-
+  // Entradas y salidas
   pinMode(PIN_SUELOD, INPUT);
   pinMode(PIN_SUELOA, INPUT);
   pinMode(BOMBA_PIN, OUTPUT);
@@ -99,7 +101,8 @@ void setup() {
   digitalWrite(BOMBA_PIN, HIGH); //relevador apagado en HIGH
   digitalWrite(HUMIDIFICADOR_PIN, HIGH); //relevador apagado en HIGH
   //
-  dht.begin();
+  dht.begin(); //iniciar sensor
+  Serial.begin(115200); //iniciar serial
 
   // Inicializar el punto de acceso
   WiFi.softAP(ssid, password);
@@ -125,21 +128,21 @@ void loop() {
 
     // Manejar solicitud de datos JSON
     if (client.available()) {
-      String request = client.readStringUntil('\r');
-      if (request.indexOf("/datos") != -1) {
-        handleDataRequest(client);
-        client.stop();
+      String request = client.readStringUntil('\r'); //obtener petición del cliente
+      if (request.indexOf("/datos") >= 0) { //si la petición tiene "datos"
+        handleDataRequest(client); //se envían los datos
+        client.stop(); //cerrar la conexión
         return;
-      } else if (request.indexOf("/control/") != -1) {
+      } else if (request.indexOf("/control/") >= 0) { //si la petición tiene "control"
         // Manejar solicitud de control
         int start = request.indexOf("/control/") + 9;
         int end = request.indexOf("/", start);
-        String device = request.substring(start, end);
+        String device = request.substring(start, end); //extraer string con el nombre del dispositivo
         start = end + 1;
         end = request.indexOf(" ", start);
-        String state = request.substring(start, end);
-        handleControlRequest(client, device, state);
-        client.stop();
+        String state = request.substring(start, end); //después extraer string con el estado del dispositivo
+        handleControlRequest(client, device, state); //actualizar salidas con los valores
+        client.stop(); //cerrar la conexión
         return;
       }
     }
@@ -190,6 +193,5 @@ void loop() {
 
     sendResponse(client, html);
   }
-
-  // Tu código principal aquí
-}
+  //
+} //Fin loop()
