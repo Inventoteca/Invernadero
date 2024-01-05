@@ -1,6 +1,6 @@
 #include <WiFi.h>
 const char *ssid = "Invernadero";    // Nombre del punto de acceso
-const char *password = "12345678";  // Contraseña del punto de acceso
+const char *password = "123456789";  // Contraseña del punto de acceso
 WiFiServer server(80); // objeto server
 
 #include <DHT.h>
