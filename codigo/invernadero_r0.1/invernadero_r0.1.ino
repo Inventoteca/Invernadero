@@ -10,13 +10,13 @@
 #include "FS.h"
 
 // Iconos
-#include "th32.h"
-#include "drop32.h"
-#include "grass32.h"
-#include "fan32.h"
-#include "lamp32.h"
-#include "sprink32.h"
-#include "pump32.h"
+#include "icons/th32.h"
+#include "icons/drop32.h"
+#include "icons/grass32.h"
+#include "icons/fan32.h"
+#include "icons/lamp32.h"
+#include "icons/sprink32.h"
+#include "icons/pump32.h"
 
 // Colores
 #define FONDO 0x1084
@@ -48,9 +48,8 @@ TFT_eSPI tft = TFT_eSPI(); // objeto para manejar la pantalla
 #define KEY_TEXTSIZE 1   // Font size multiplier
 
 // Using two fonts since numbers are nice when bold
-#define LABEL1_FONT &FreeSansOblique12pt7b // Key label font 1
-#define LABEL2_FONT &FreeSansBold12pt7b    // Key label font 2
-// tal vez sea neceario vel el ejemplo de fonts para elegir otras
+//#define LABEL1_FONT &FreeSansOblique12pt7b // Key label font 1
+//#define LABEL2_FONT &FreeSansBold12pt7b    // Key label font 2
 
 // Numeric display box size and location
 #define DISP_X 1
@@ -95,8 +94,8 @@ TFT_eSPI_Button key[15];
 #define PIN_VENT2 33
 
 // LEDs RGB - 3 salidas PWM
-#define PIN_R 25
-#define PIN_G 26
+#define PIN_R 26
+#define PIN_G 25
 #define PIN_B 27
 
 // bomba de agua
@@ -140,7 +139,7 @@ void setup() {
 
   // Initialise the TFT screen
   tft.init();
-  tft.setRotation(3); // Set the rotation before we calibrate
+  tft.setRotation(1);//3 // Set the rotation before we calibrate
   touch_calibrate(); // Calibrate and retrieve the scaling factors
   tft.fillScreen(TFT_BLACK); // Clear the screen
   //tft.fillRect(0, 0, 240, 320, TFT_DARKGREY); // Draw keypad background
@@ -252,11 +251,21 @@ void drawUI() {
   tft.fillRoundRect(20, 20, 140, 60, 20, TFT_BLACK);
   tft.fillRoundRect(20, 90, 140, 60, 20, TFT_BLACK);
   tft.fillRoundRect(20, 160, 140, 60, 20, TFT_BLACK);
-  tft.setFreeFont(&FreeMono24pt7b);  // Choose a nicefont that fits box
+  
+  //tft.setFreeFont(&FreeMono24pt7b);  // Choose a nicefont that fits box
+  tft.setTextFont(4);
+  tft.setTextSize(1);
+  // En la fuente 1 el signo de grados es \xF7 (hexadecimal) o \367 (octal)
+  // En las fuentes 2 y 4 el signo de grados es el acento grave
+  // Tamaños que se ven bien
+  // - Fuente 1 x3 o x4
+  // - Fuente 2 x2 o x3
+  // - Fuente 4 x1 porque el pixelado se ve feo
+  
   tft.setTextColor(TFT_WHITE);     // Set the font colour
-  tft.drawString("50%", 60, 30);
-  tft.drawString("10%", 60, 100);
-  tft.drawString("26ºC", 60, 170);
+  tft.drawString("26 `C", 60, 30+6);
+  tft.drawString("50%", 60, 100+6);
+  tft.drawString("10%", 60, 170+6);
   //tft.fillRect(10, 10, 150, 220, TFT_DARKGREY);
   tft.drawXBitmap(40-16, 50-16, th32_bits, 32, 32, TFT_CYAN);
   tft.drawXBitmap(40-16, 120-16, drop32_bits, 32, 32, TFT_CYAN);
@@ -281,8 +290,8 @@ void drawKeypad() {
     for (uint8_t col = 0; col < 3; col++) {
       uint8_t b = col + row * 3;
 
-      if (b < 3) tft.setFreeFont(LABEL1_FONT);
-      else tft.setFreeFont(LABEL2_FONT);
+      //if (b < 3) tft.setFreeFont(LABEL1_FONT);
+      //else tft.setFreeFont(LABEL2_FONT);
 
       key[b].initButton(&tft, KEY_X + col * (KEY_W + KEY_SPACING_X),
                         KEY_Y + row * (KEY_H + KEY_SPACING_Y), // x, y, w, h, outline, fill, text
