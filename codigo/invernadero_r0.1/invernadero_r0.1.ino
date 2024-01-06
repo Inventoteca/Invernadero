@@ -10,13 +10,13 @@
 #include "FS.h"
 
 // Iconos
-#include "icons/th32.h"
-#include "icons/drop32.h"
-#include "icons/grass32.h"
-#include "icons/fan32.h"
-#include "icons/lamp32.h"
-#include "icons/sprink32.h"
-#include "icons/pump32.h"
+#include "icons/th32.h" //thermometer
+#include "icons/drop32.h" //water drop
+#include "icons/grass32.h" //grass
+#include "icons/fan32.h" //fan
+#include "icons/lamp32.h" //lamp
+#include "icons/sprink32.h" //sprinkler
+#include "icons/pump32.h" //water pump
 
 // Colores
 #define FONDO 0x1084
@@ -38,71 +38,39 @@ TFT_eSPI tft = TFT_eSPI(); // objeto para manejar la pantalla
 #define REPEAT_CAL false
 // en lugar de usar este define se usará un botón para iniciar la calibración
 
-// Keypad start position, key sizes and spacing
-#define KEY_X 40 // Centre of key
-#define KEY_Y 96
-#define KEY_W 64 // Width and height
-#define KEY_H 35
-#define KEY_SPACING_X 10 // X and Y gap
-#define KEY_SPACING_Y 10
-#define KEY_TEXTSIZE 1   // Font size multiplier
-
-// Using two fonts since numbers are nice when bold
-//#define LABEL1_FONT &FreeSansOblique12pt7b // Key label font 1
-//#define LABEL2_FONT &FreeSansBold12pt7b    // Key label font 2
-
-// Numeric display box size and location
-#define DISP_X 1
-#define DISP_Y 10
-#define DISP_W 238
-#define DISP_H 50
-#define DISP_TSIZE 3
-#define DISP_TCOLOR TFT_CYAN
-
-// Number length, buffer for storing it and character index
-#define NUM_LEN 12
-char numberBuffer[NUM_LEN + 1] = "";
-uint8_t numberIndex = 0;
-
-// We have a status line for messages
-#define STATUS_X 120 // Centred on this
-#define STATUS_Y 65
+// Botones de la pantalla principal
+const int bx[] = { 20,  20,  20, 180, 250, 180, 250, 180}; //x top-left corner
+const int by[] = { 20,  90, 160,  20,  20,  90,  90, 160}; //y top-left corner
+const int bw[] = {140, 140, 140,  60,  60,  60,  60, 130}; //wdith
+const int bh[] = { 60,  60,  60,  60,  60,  60,  60,  60}; //height
+const uint8_t* bi[] = { //icons
+  th32_bits, drop32_bits, grass32_bits,
+  fan32_bits, lamp32_bits, sprink32_bits, pump32_bits, 0
+};
+TFT_eSPI_Button b[8]; //objetos botón
 
 // Create 15 keys for the keypad
 char keyLabel[15][5] = {"New", "Del", "Send", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "#" };
-uint16_t keyColor[15] = {TFT_RED, TFT_DARKGREY, TFT_DARKGREEN,
-                         TFT_BLUE, TFT_BLUE, TFT_BLUE,
-                         TFT_BLUE, TFT_BLUE, TFT_BLUE,
-                         TFT_BLUE, TFT_BLUE, TFT_BLUE,
-                         TFT_BLUE, TFT_BLUE, TFT_BLUE
-                        };
-
-// Invoke the TFT_eSPI button class and create all the button objects
-TFT_eSPI_Button key[15];
+uint16_t keyColor[15] = {
+  TFT_RED, TFT_DARKGREY, TFT_DARKGREEN,
+  TFT_BLUE, TFT_BLUE, TFT_BLUE,
+  TFT_BLUE, TFT_BLUE, TFT_BLUE,
+  TFT_BLUE, TFT_BLUE, TFT_BLUE,
+  TFT_BLUE, TFT_BLUE, TFT_BLUE
+};
 
 //===================================================================
 // Definir pines
-// Los pines para la pantalla, incluyendo los del panel touch,
-// se definen en "Setup42_ILI9341_ESP32.h" de la librería TFT_eSPI
-
-// sensor de humedad de suelo
-#define PIN_SUELOD 34 //lectura digital
-#define PIN_SUELOA 35 //lectura analogica
-
-// ventiladores - 2 salidas PWM
-#define PIN_VENT1 32
-#define PIN_VENT2 33
-
-// LEDs RGB - 3 salidas PWM
-#define PIN_R 26
-#define PIN_G 25
-#define PIN_B 27
-
-// bomba de agua
-#define PIN_BOMBA 14
-
-// atomizador/spray
-#define PIN_SPRAY 13
+// Los pines para la pantalla y el panel touch se definen en "Setup42_ILI9341_ESP32.h"
+#define PIN_SUELOD 34 //sensor de humedad del suelo (lectura digital)
+#define PIN_SUELOA 35 //sensor de humedad del suelo (lectura analogica)
+#define PIN_VENT1 32 //ventilador 1 (usa PWM)
+#define PIN_VENT2 33 //ventilador 2 (usa PMW)
+#define PIN_R 26 //LED R (usa PMW)
+#define PIN_G 25 //LED G (usa PMW)
+#define PIN_B 27 //LED B (usa PMW)
+#define PIN_BOMBA 14 //bomba de agua
+#define PIN_SPRAY 13 //atomizador/spray
 
 // sensor de temperatura y humedad
 #include "DHT.h"
@@ -141,15 +109,12 @@ void setup() {
   tft.init();
   tft.setRotation(1);//3 // Set the rotation before we calibrate
   touch_calibrate(); // Calibrate and retrieve the scaling factors
-  tft.fillScreen(TFT_BLACK); // Clear the screen
-  //tft.fillRect(0, 0, 240, 320, TFT_DARKGREY); // Draw keypad background
+  //tft.fillScreen(TFT_BLACK); // Clear the screen
 
-  // Draw number display area and frame
-  //tft.fillRect(DISP_X, DISP_Y, DISP_W, DISP_H, TFT_BLACK);
-  //tft.drawRect(DISP_X, DISP_Y, DISP_W, DISP_H, TFT_WHITE);
-
-  // Draw keypad
-  //drawKeypad();
+  // Inicializar botones
+  for (uint8_t i = 0; i < 8; i++) {
+    b[i].initButtonUL(&tft, bx[i], by[i], bw[i], bh[i], 0, 0, 0, "", 1);
+  }
 
   // Dibujar interfaz
   drawUI();
@@ -159,30 +124,30 @@ void setup() {
 
 void loop(void) {
   /*
-  // Reading temperature or humidity takes about 250 milliseconds!
-  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  float h = dht.readHumidity();
-  // Read temperature as Celsius (the default)
-  float t = dht.readTemperature();
-  Serial.print(h);
-  Serial.println(t);
+    // Reading temperature or humidity takes about 250 milliseconds!
+    // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+    float h = dht.readHumidity();
+    // Read temperature as Celsius (the default)
+    float t = dht.readTemperature();
+    Serial.print(h);
+    Serial.println(t);
 
-  uint16_t t_x = 0, t_y = 0; // To store the touch coordinates
+    uint16_t t_x = 0, t_y = 0; // To store the touch coordinates
 
-  // Pressed will be set true is there is a valid touch on the screen
-  bool pressed = tft.getTouch(&t_x, &t_y);
+    // Pressed will be set true is there is a valid touch on the screen
+    bool pressed = tft.getTouch(&t_x, &t_y);
 
-  // / Check if any key coordinate boxes contain the touch coordinates
-  for (uint8_t b = 0; b < 15; b++) {
+    // / Check if any key coordinate boxes contain the touch coordinates
+    for (uint8_t b = 0; b < 15; b++) {
     if (pressed && key[b].contains(t_x, t_y)) {
       key[b].press(true);  // tell the button it is pressed
     } else {
       key[b].press(false);  // tell the button it is NOT pressed
     }
-  }
+    }
 
-  // Check if any key has changed state
-  for (uint8_t b = 0; b < 15; b++) {
+    // Check if any key has changed state
+    for (uint8_t b = 0; b < 15; b++) {
 
     if (b < 3) tft.setFreeFont(LABEL1_FONT);
     else tft.setFreeFont(LABEL2_FONT);
@@ -238,72 +203,60 @@ void loop(void) {
 
       delay(10); // UI debouncing
     }
-  }
- */ 
+    }
+  */
 }
 
 //------------------------------------------------------------------------------------------
 void drawUI() {
-  //tft.fillScreen(TFT_BLACK);
-  //tft.drawRoundRect(10, 10, 150, 220, 10, tft.color565(19, 19, 19));
-  tft.fillScreen(FONDO);
-  tft.fillRoundRect(10, 10, 160, 220, 4, PANEL); //tft.color565(19, 19, 19)
-  tft.fillRoundRect(20, 20, 140, 60, 20, TFT_BLACK);
-  tft.fillRoundRect(20, 90, 140, 60, 20, TFT_BLACK);
-  tft.fillRoundRect(20, 160, 140, 60, 20, TFT_BLACK);
-  
-  //tft.setFreeFont(&FreeMono24pt7b);  // Choose a nicefont that fits box
+  // Fuentes
   tft.setTextFont(4);
   tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE);
   // En la fuente 1 el signo de grados es \xF7 (hexadecimal) o \367 (octal)
   // En las fuentes 2 y 4 el signo de grados es el acento grave
   // Tamaños que se ven bien
   // - Fuente 1 x3 o x4
   // - Fuente 2 x2 o x3
   // - Fuente 4 x1 porque el pixelado se ve feo
-  
-  tft.setTextColor(TFT_WHITE);     // Set the font colour
-  tft.drawString("26 `C", 60, 30+6);
-  tft.drawString("50%", 60, 100+6);
-  tft.drawString("10%", 60, 170+6);
-  //tft.fillRect(10, 10, 150, 220, TFT_DARKGREY);
-  tft.drawXBitmap(40-16, 50-16, th32_bits, 32, 32, TFT_CYAN);
-  tft.drawXBitmap(40-16, 120-16, drop32_bits, 32, 32, TFT_CYAN);
-  tft.drawXBitmap(40-16, 190-16, grass32_bits, 32, 32, TFT_CYAN);
-  //tft.drawXBitmap(x, y, logo, logoWidth, logoHeight, TFT_WHITE, TFT_RED);
-  tft.fillRoundRect(180, 50, 60, 60, 4, PANEL);
-  tft.fillRoundRect(250, 50, 60, 60, 4, PANEL);
-  tft.fillRoundRect(180, 130, 60, 60, 4, PANEL);
-  tft.fillRoundRect(250, 130, 60, 60, 4, PANEL);
+
+  //tft.fillScreen(TFT_BLACK);
+  //tft.drawRoundRect(10, 10, 150, 220, 10, tft.color565(19, 19, 19));
+  tft.fillScreen(FONDO);
+
+  // Grupo 1
+  tft.fillRoundRect(10, 10, 160, 220, 4, PANEL); //tft.color565(19, 19, 19)
+  tft.fillRoundRect(20, 20, 140, 60, 20, TFT_BLACK);
+  tft.fillRoundRect(20, 90, 140, 60, 20, TFT_BLACK);
+  tft.fillRoundRect(20, 160, 140, 60, 20, TFT_BLACK);
   //
-  tft.drawXBitmap(210-16, 80-16, fan32_bits, 32, 32, TFT_CYAN);
-  tft.drawXBitmap(280-16, 80-16, lamp32_bits, 32, 32, TFT_CYAN);
-  tft.drawXBitmap(210-16, 160-16, sprink32_bits, 32, 32, TFT_CYAN);
-  tft.drawXBitmap(280-16, 160-16, pump32_bits, 32, 32, TFT_CYAN);
-  
+  tft.drawXBitmap(40 - 16, 50 - 16, th32_bits, 32, 32, TFT_CYAN);
+  tft.drawXBitmap(40 - 16, 120 - 16, drop32_bits, 32, 32, TFT_CYAN);
+  tft.drawXBitmap(40 - 16, 190 - 16, grass32_bits, 32, 32, TFT_CYAN);
+  //
+  tft.drawString("26 `C", 60, 30 + 6);
+  tft.drawString("50%", 60, 100 + 6);
+  tft.drawString("10%", 60, 170 + 6);
+
+  // Grupo 2
+  tft.fillRoundRect(180, 20, 60, 60, 4, PANEL);
+  tft.fillRoundRect(250, 20, 60, 60, 4, PANEL);
+  tft.fillRoundRect(180, 90, 60, 60, 4, PANEL);
+  tft.fillRoundRect(250, 90, 60, 60, 4, PANEL);
+  tft.fillRoundRect(180, 160, 130, 60, 4, PANEL);
+  //
+  tft.drawXBitmap(210 - 16, 50 - 16, fan32_bits, 32, 32, TFT_CYAN);
+  tft.drawXBitmap(280 - 16, 50 - 16, lamp32_bits, 32, 32, TFT_CYAN);
+  tft.drawXBitmap(210 - 16, 120 - 16, sprink32_bits, 32, 32, TFT_CYAN);
+  tft.drawXBitmap(280 - 16, 120 - 16, pump32_bits, 32, 32, TFT_CYAN);
+  //
+  tft.setTextFont(2);
+  tft.setTextSize(1);
+  tft.drawString("CONECTAR", 210, 180);
+
 }
 
 //------------------------------------------------------------------------------------------
-void drawKeypad() {
-  // Draw the keys
-  for (uint8_t row = 0; row < 5; row++) {
-    for (uint8_t col = 0; col < 3; col++) {
-      uint8_t b = col + row * 3;
-
-      //if (b < 3) tft.setFreeFont(LABEL1_FONT);
-      //else tft.setFreeFont(LABEL2_FONT);
-
-      key[b].initButton(&tft, KEY_X + col * (KEY_W + KEY_SPACING_X),
-                        KEY_Y + row * (KEY_H + KEY_SPACING_Y), // x, y, w, h, outline, fill, text
-                        KEY_W, KEY_H, TFT_WHITE, keyColor[b], TFT_WHITE,
-                        keyLabel[b], KEY_TEXTSIZE);
-      key[b].drawButton();
-    }
-  }
-}
-
-//------------------------------------------------------------------------------------------
-
 void touch_calibrate()
 {
   uint16_t calData[5]; //array de 5 enteros
@@ -373,18 +326,3 @@ void touch_calibrate()
     }
   }
 }
-
-//------------------------------------------------------------------------------------------
-
-// Print something in the mini status bar
-void status(const char *msg) {
-  tft.setTextPadding(240);
-  //tft.setCursor(STATUS_X, STATUS_Y);
-  tft.setTextColor(TFT_WHITE, TFT_DARKGREY);
-  tft.setTextFont(0);
-  tft.setTextDatum(TC_DATUM);
-  tft.setTextSize(1);
-  tft.drawString(msg, STATUS_X, STATUS_Y);
-}
-
-//------------------------------------------------------------------------------------------
