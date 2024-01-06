@@ -17,12 +17,22 @@ void setup() {
 void loop() {
   WiFiClient client = server.available(); //ver conexión de clientes
   if (client) { //si se conecta un cliente
-    Serial.println("Cliente conectado");
+    Serial.println("Cliente conectado"); //enviar mensaje por serial
+
+    // Si el cliente hizo una petición, leer la string y mostrarla por serial
+    if (client.available()) {
+      String request = client.readStringUntil('\r');
+      //String request = client.readString();
+      Serial.println(request);
+    }
+
+    // El server envía un código de respuesta, el tipo de contenido
+    // que recibirá el cliente, una línea vacía y después el contenido
     client.println("HTTP/1.1 200 OK");
     client.println("Content-type: text/html");
     client.println("Connection: close");
     client.println();
-    client.println(html);
+    client.println(html); //enviar página web
     //client.stop();
   }
 }
