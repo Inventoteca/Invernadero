@@ -35,7 +35,7 @@ TFT_eSPI tft = TFT_eSPI(); // objeto para manejar la pantalla
 // Set REPEAT_CAL to true instead of false to run calibration
 // again, otherwise it will only be done once.
 // Repeat calibration if you change the screen rotation.
-#define REPEAT_CAL false
+#define REPEAT_CAL true
 // en lugar de usar este define se usará un botón para iniciar la calibración
 
 // Botones de la pantalla principal
@@ -113,7 +113,7 @@ void setup() {
 
   // Inicializar botones
   for (uint8_t i = 0; i < 8; i++) {
-    b[i].initButtonUL(&tft, bx[i], by[i], bw[i], bh[i], 0, 0, 0, "", 1);
+    b[i].initButtonUL(&tft, bx[i], by[i], bw[i], bh[i], TFT_WHITE, TFT_WHITE, TFT_WHITE, "", 1); //TFT_WHITE
   }
 
   // Dibujar interfaz
@@ -131,80 +131,70 @@ void loop(void) {
     float t = dht.readTemperature();
     Serial.print(h);
     Serial.println(t);
-
-    uint16_t t_x = 0, t_y = 0; // To store the touch coordinates
-
-    // Pressed will be set true is there is a valid touch on the screen
-    bool pressed = tft.getTouch(&t_x, &t_y);
-
-    // / Check if any key coordinate boxes contain the touch coordinates
-    for (uint8_t b = 0; b < 15; b++) {
-    if (pressed && key[b].contains(t_x, t_y)) {
-      key[b].press(true);  // tell the button it is pressed
-    } else {
-      key[b].press(false);  // tell the button it is NOT pressed
-    }
-    }
-
-    // Check if any key has changed state
-    for (uint8_t b = 0; b < 15; b++) {
-
-    if (b < 3) tft.setFreeFont(LABEL1_FONT);
-    else tft.setFreeFont(LABEL2_FONT);
-
-    if (key[b].justReleased()) key[b].drawButton();     // draw normal
-
-    if (key[b].justPressed()) {
-      key[b].drawButton(true);  // draw invert
-
-      // if a numberpad button, append the relevant # to the numberBuffer
-      if (b >= 3) {
-        if (numberIndex < NUM_LEN) {
-          numberBuffer[numberIndex] = keyLabel[b][0];
-          numberIndex++;
-          numberBuffer[numberIndex] = 0; // zero terminate
-        }
-        status(""); // Clear the old status
-      }
-
-      // Del button, so delete last char
-      if (b == 1) {
-        numberBuffer[numberIndex] = 0;
-        if (numberIndex > 0) {
-          numberIndex--;
-          numberBuffer[numberIndex] = 0;//' ';
-        }
-        status(""); // Clear the old status
-      }
-
-      if (b == 2) {
-        status("Sent value to serial port");
-        Serial.println(numberBuffer);
-      }
-      // we dont really check that the text field makes sense
-      // just try to call
-      if (b == 0) {
-        status("Value cleared");
-        numberIndex = 0; // Reset index to 0
-        numberBuffer[numberIndex] = 0; // Place null in buffer
-      }
-
-      // Update the number display field
-      tft.setTextDatum(TL_DATUM);        // Use top left corner as text coord datum
-      tft.setFreeFont(&FreeSans18pt7b);  // Choose a nicefont that fits box
-      tft.setTextColor(DISP_TCOLOR);     // Set the font colour
-
-      // Draw the string, the value returned is the width in pixels
-      int xwidth = tft.drawString(numberBuffer, DISP_X + 4, DISP_Y + 12);
-
-      // Now cover up the rest of the line up by drawing a black rectangle.  No flicker this way
-      // but it will not work with italic or oblique fonts due to character overlap.
-      tft.fillRect(DISP_X + 4 + xwidth, DISP_Y + 1, DISP_W - xwidth - 5, DISP_H - 2, TFT_BLACK);
-
-      delay(10); // UI debouncing
-    }
-    }
   */
+  // Pressed will be set true is there is a valid touch on the screen
+  uint16_t tx = 0, ty = 0; // To store the touch coordinates
+  bool pressed = tft.getTouch(&tx, &ty, 0);
+
+  if (pressed) { //si la pantalla es tocada
+    for (uint8_t i = 0; i < 8; i++) { //revisar los botones
+      if (b[i].contains(tx, ty)) { //si el botón es tocado
+        b[i].press(true); //marcar como presionado
+      } else {
+        b[i].press(false); //en caso contrario, marcar como no presionado
+      }
+
+      // Si el botón se acaba de presionar, dibujarlo
+      if (b[i].justPressed()) {
+        b[i].drawButton();
+      }
+
+      // Si el botón se acaba de soltar, realizar una acción
+      if (b[i].justReleased()) {
+        //acción
+        drawUI();
+        switch (i) {
+          case 0: //temperatura
+            break;
+          case 1: //humedad del aire
+            break;
+          case 2: //humedad del suelo
+            break;
+          case 3: //ventilador
+            break;
+          case 4: //LEDs
+            break;
+          case 5: //spray/atomizador
+            break;
+          case 6: //bomba de agua
+            break;
+          case 7: //conectar
+            break;
+        }
+      }
+    }//fin for
+  }//fin if pressed
+
+  /*
+    // Update the number display field
+    tft.setTextDatum(TL_DATUM);        // Use top left corner as text coord datum
+    tft.setFreeFont(&FreeSans18pt7b);  // Choose a nicefont that fits box
+    tft.setTextColor(DISP_TCOLOR);     // Set the font colour
+
+    // Draw the string, the value returned is the width in pixels
+    int xwidth = tft.drawString(numberBuffer, DISP_X + 4, DISP_Y + 12);
+
+    // Now cover up the rest of the line up by drawing a black rectangle.  No flicker this way
+    // but it will not work with italic or oblique fonts due to character overlap.
+    tft.fillRect(DISP_X + 4 + xwidth, DISP_Y + 1, DISP_W - xwidth - 5, DISP_H - 2, TFT_BLACK);
+  */
+
+  delay(50); // UI debouncing
+} //fin loop()
+
+// Mi función para dibujar botones
+void drawButton() {
+  // por ahora no se usa
 }
 
 //------------------------------------------------------------------------------------------
