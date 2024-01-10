@@ -35,29 +35,21 @@ TFT_eSPI tft = TFT_eSPI(); // objeto para manejar la pantalla
 // Set REPEAT_CAL to true instead of false to run calibration
 // again, otherwise it will only be done once.
 // Repeat calibration if you change the screen rotation.
-#define REPEAT_CAL true
+#define REPEAT_CAL false
 // en lugar de usar este define se usará un botón para iniciar la calibración
 
 // Botones de la pantalla principal
-const int bx[] = { 20,  20,  20, 180, 250, 180, 250, 180}; //x top-left corner
-const int by[] = { 20,  90, 160,  20,  20,  90,  90, 160}; //y top-left corner
-const int bw[] = {140, 140, 140,  60,  60,  60,  60, 130}; //wdith
-const int bh[] = { 60,  60,  60,  60,  60,  60,  60,  60}; //height
-const uint8_t* bi[] = { //icons
+const int bx[8] = { 20,  20,  20, 180, 250, 180, 250, 180}; //x top-left corner
+const int by[8] = { 20,  90, 160,  20,  20,  90,  90, 160}; //y top-left corner
+const int bw[8] = {140, 140, 140,  60,  60,  60,  60, 130}; //wdith
+const int bh[8] = { 60,  60,  60,  60,  60,  60,  60,  60}; //height
+char* bl[8] = {"", "", "", "", "", "", "", "CONECTAR"}; //labels
+const uint16_t bc[8] {0, 0, 0, PANEL, PANEL, PANEL, PANEL, PANEL}; //colors
+const uint8_t* bi[8] = { //icons
   th32_bits, drop32_bits, grass32_bits,
   fan32_bits, lamp32_bits, sprink32_bits, pump32_bits, 0
 };
 TFT_eSPI_Button b[8]; //objetos botón
-
-// Create 15 keys for the keypad
-char keyLabel[15][5] = {"New", "Del", "Send", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "#" };
-uint16_t keyColor[15] = {
-  TFT_RED, TFT_DARKGREY, TFT_DARKGREEN,
-  TFT_BLUE, TFT_BLUE, TFT_BLUE,
-  TFT_BLUE, TFT_BLUE, TFT_BLUE,
-  TFT_BLUE, TFT_BLUE, TFT_BLUE,
-  TFT_BLUE, TFT_BLUE, TFT_BLUE
-};
 
 //===================================================================
 // Definir pines
@@ -113,11 +105,9 @@ void setup() {
 
   // Inicializar botones
   for (uint8_t i = 0; i < 8; i++) {
-    b[i].initButtonUL(&tft, bx[i], by[i], bw[i], bh[i], TFT_WHITE, TFT_WHITE, TFT_WHITE, "", 1); //TFT_WHITE
+    b[i].initButtonUL(&tft, bx[i], by[i], bw[i], bh[i], bc[i], bc[i], TFT_WHITE, bl[i], 1);
   }
-
-  // Dibujar interfaz
-  drawUI();
+  drawUI(); //Dibujar interfaz
 }
 
 //------------------------------------------------------------------------------------------
@@ -134,46 +124,47 @@ void loop(void) {
   */
   // Pressed will be set true is there is a valid touch on the screen
   uint16_t tx = 0, ty = 0; // To store the touch coordinates
-  bool pressed = tft.getTouch(&tx, &ty, 0);
+  bool pressed = tft.getTouch(&tx, &ty, 0); //using threshold
 
-  if (pressed) { //si la pantalla es tocada
-    for (uint8_t i = 0; i < 8; i++) { //revisar los botones
-      if (b[i].contains(tx, ty)) { //si el botón es tocado
-        b[i].press(true); //marcar como presionado
-      } else {
-        b[i].press(false); //en caso contrario, marcar como no presionado
-      }
+  //if (pressed) { //si la pantalla es tocada
+  for (uint8_t i = 0; i < 8; i++) { //revisar los botones
+    if (pressed and b[i].contains(tx, ty)) { //si el botón es tocado
+      b[i].press(true); //marcar como presionado
+    } else {
+      b[i].press(false); //en caso contrario, marcar como no presionado
+    }
 
-      // Si el botón se acaba de presionar, dibujarlo
-      if (b[i].justPressed()) {
-        b[i].drawButton();
-      }
+    // Si el botón se acaba de presionar, dibujarlo presionado
+    if (b[i].justPressed()) {
+      b[i].drawButton(true); //inverted/pressed
+    }
 
-      // Si el botón se acaba de soltar, realizar una acción
-      if (b[i].justReleased()) {
-        //acción
-        drawUI();
-        switch (i) {
-          case 0: //temperatura
-            break;
-          case 1: //humedad del aire
-            break;
-          case 2: //humedad del suelo
-            break;
-          case 3: //ventilador
-            break;
-          case 4: //LEDs
-            break;
-          case 5: //spray/atomizador
-            break;
-          case 6: //bomba de agua
-            break;
-          case 7: //conectar
-            break;
-        }
+    // Si el botón se acaba de soltar, realizar una acción
+    if (b[i].justReleased()) {
+      //acción
+      //drawUI();
+      b[i].drawButton(false); //dibujar normal
+      switch (i) {
+        case 0: //temperatura
+          break;
+        case 1: //humedad del aire
+          break;
+        case 2: //humedad del suelo
+          break;
+        case 3: //ventilador
+          break;
+        case 4: //LEDs
+          break;
+        case 5: //spray/atomizador
+          break;
+        case 6: //bomba de agua
+          break;
+        case 7: //conectar
+          break;
       }
-    }//fin for
-  }//fin if pressed
+    }
+  }//fin for
+  //}//fin if pressed
 
   /*
     // Update the number display field
@@ -199,6 +190,10 @@ void drawButton() {
 
 //------------------------------------------------------------------------------------------
 void drawUI() {
+  //tft.fillScreen(TFT_BLACK);
+  //tft.drawRoundRect(10, 10, 150, 220, 10, tft.color565(19, 19, 19));
+  tft.fillScreen(FONDO);
+
   // Fuentes
   tft.setTextFont(4);
   tft.setTextSize(1);
@@ -210,40 +205,40 @@ void drawUI() {
   // - Fuente 2 x2 o x3
   // - Fuente 4 x1 porque el pixelado se ve feo
 
-  //tft.fillScreen(TFT_BLACK);
-  //tft.drawRoundRect(10, 10, 150, 220, 10, tft.color565(19, 19, 19));
-  tft.fillScreen(FONDO);
-
   // Grupo 1
   tft.fillRoundRect(10, 10, 160, 220, 4, PANEL); //tft.color565(19, 19, 19)
-  tft.fillRoundRect(20, 20, 140, 60, 20, TFT_BLACK);
-  tft.fillRoundRect(20, 90, 140, 60, 20, TFT_BLACK);
-  tft.fillRoundRect(20, 160, 140, 60, 20, TFT_BLACK);
+  for (uint8_t i = 0; i < 3; i++) {
+    b[i].drawButton(); //normal
+  }
+  //tft.fillRoundRect(20, 20, 140, 60, 20, TFT_BLACK);
+  //tft.fillRoundRect(20, 90, 140, 60, 20, TFT_BLACK);
+  //tft.fillRoundRect(20, 160, 140, 60, 20, TFT_BLACK);
   //
   tft.drawXBitmap(40 - 16, 50 - 16, th32_bits, 32, 32, TFT_CYAN);
   tft.drawXBitmap(40 - 16, 120 - 16, drop32_bits, 32, 32, TFT_CYAN);
   tft.drawXBitmap(40 - 16, 190 - 16, grass32_bits, 32, 32, TFT_CYAN);
   //
-  tft.drawString("26 `C", 60, 30 + 6);
-  tft.drawString("50%", 60, 100 + 6);
-  tft.drawString("10%", 60, 170 + 6);
+  tft.drawString("26 `C", 70, 30 + 8);
+  tft.drawString("50%", 70, 100 + 8);
+  tft.drawString("10%", 70, 170 + 8);
 
   // Grupo 2
-  tft.fillRoundRect(180, 20, 60, 60, 4, PANEL);
-  tft.fillRoundRect(250, 20, 60, 60, 4, PANEL);
-  tft.fillRoundRect(180, 90, 60, 60, 4, PANEL);
-  tft.fillRoundRect(250, 90, 60, 60, 4, PANEL);
-  tft.fillRoundRect(180, 160, 130, 60, 4, PANEL);
+  tft.setTextFont(2);
+  tft.setTextSize(1);
+  //
+  for (uint8_t i = 3; i < 8; i++) {
+    b[i].drawButton(); //normal
+  }
+  //tft.fillRoundRect(180, 20, 60, 60, 4, PANEL);
+  //tft.fillRoundRect(250, 20, 60, 60, 4, PANEL);
+  //tft.fillRoundRect(180, 90, 60, 60, 4, PANEL);
+  //tft.fillRoundRect(250, 90, 60, 60, 4, PANEL);
+  //tft.fillRoundRect(180, 160, 130, 60, 4, PANEL);
   //
   tft.drawXBitmap(210 - 16, 50 - 16, fan32_bits, 32, 32, TFT_CYAN);
   tft.drawXBitmap(280 - 16, 50 - 16, lamp32_bits, 32, 32, TFT_CYAN);
   tft.drawXBitmap(210 - 16, 120 - 16, sprink32_bits, 32, 32, TFT_CYAN);
   tft.drawXBitmap(280 - 16, 120 - 16, pump32_bits, 32, 32, TFT_CYAN);
-  //
-  tft.setTextFont(2);
-  tft.setTextSize(1);
-  tft.drawString("CONECTAR", 210, 180);
-
 }
 
 //------------------------------------------------------------------------------------------
