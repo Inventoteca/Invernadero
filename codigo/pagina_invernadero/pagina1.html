@@ -1,0 +1,120 @@
+<html>
+
+<head>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        .slider {
+            width: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- handle data request datos y control -->
+
+    <div style='float: left; width: 100%; text-align: center;'>
+        <h2>Temperatura</h2>
+        <p id='temperatura'>
+            20 °C</p>
+    </div>
+
+    <div style='float: left; width: 100%; text-align: center;'>
+        <h2>Humedad</h2>
+        <p id='humedad'>
+            50%</p>
+    </div>
+    
+    <div style='float: left; width: 100%; text-align: center;'>
+        <h2>Humedad del Suelo</h2>
+        <p id='humedadSuelo'>
+            60%</p>
+    </div>
+
+    <div style='float: left; width: 100%; text-align: center;'>
+        <h2>Bomba</h2>
+        <label class='switch'>
+            <input type='checkbox' id='toggleBomba' onchange='toggleBomba()'>
+            <span class='slider round'></span>
+        </label>
+    </div>
+
+    <div style='float: left; width: 100%; text-align: center;'>
+        <h2>Humidificador</h2>
+        <label class='switch'>
+            <input type='checkbox' id='toggleHumidificador' onchange='toggleHumidificador()'>
+            <span class='slider round'></span>
+        </label>
+    </div>
+
+    <div style='float: left; width: 100%; text-align: center;'>
+        <h2>Ventilador_1 <span id='valueVentilador_1'>5</span></h2>
+        <input type='range' id='Ventilador_1' class='slider' min='0' max='10' value='5'
+            oninput='updateSliderValue("Ventilador_1", "valueVentilador_1")'>
+    </div>
+
+    <div style='float: left; width: 100%; text-align: center;'>
+        <h2>Ventilador_2 <span id='valueVentilador_2'>5</span></h2>
+        <input type='range' id='Ventilador_2' class='slider' min='0' max='10' value='5'
+            oninput='updateSliderValue("Ventilador_2", "valueVentilador_2")'>
+    </div>
+
+    <div style='float: left; width: 100%; text-align: center;'>
+        <h2>R <span id='valueR'>5</span></h2>
+        <input type='range' id='R' class='slider' min='0' max='10' value='5' oninput='updateSliderValue("R", "valueR")'>
+    </div>
+
+    <div style='float: left; width: 100%; text-align: center;'>
+        <h2>G <span id='valueG'>5</span></h2>
+        <input type='range' id='G' class='slider' min='0' max='10' value='5' oninput='updateSliderValue("G", "valueG")'>
+    </div>
+
+    <div style='float: left; width: 100%; text-align: center;'>
+        <h2>B <span id='valueB'>5</span></h2>
+        <input type='range' id='B' class='slider' min='0' max='10' value='5' oninput='updateSliderValue("B", "valueB")'>
+    </div>
+
+    <script>
+        function toggleBomba() {
+            var estado = document.getElementById('toggleBomba').checked;
+            enviarDatos('bomba', estado);
+        }
+        function toggleHumidificador() {
+            var estado = document.getElementById('toggleHumidificador').checked;
+            enviarDatos('humidificador', estado);
+        }
+        function updateSliderValue(sliderId, valueId) {
+            var valor = document.getElementById(sliderId).value;
+            document.getElementById(valueId).innerText = valor; //innerText innerHTML
+            enviarDatos(sliderId, valor);
+        }
+        function updateVariable(variable, valor) { //parece que esta función no se usa
+            document.getElementById('input' + variable).value = valor;
+            enviarDatos(variable, valor);
+        }
+        function enviarDatos(dispositivo, estado) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open('GET', '/control/' + dispositivo + '/' + estado, true);
+            xhttp.send();
+        }
+        function actualizarDatos() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open('GET', '/datos', true);
+            xhttp.onload = function () {
+                var datos = JSON.parse(this.responseText);
+                document.getElementById('temperatura').innerHTML = datos.temperatura;
+                document.getElementById('humedad').innerHTML = datos.humedad;
+                document.getElementById('humedadSuelo').innerHTML = datos.humedadSuelo;
+                document.getElementById('toggleBomba').checked = datos.bombaEncendida;
+                document.getElementById('toggleHumidificador').checked = datos.humidificadorEncendido;
+                for (var i = 0; i < 5; i++) {
+                    document.getElementById(sliderNames[i]).value = datos.sliderValues[i];
+                    document.getElementById('value' + sliderNames[i]).innerHTML = datos.sliderValues[i];
+                }
+            };
+            xhttp.send();
+        }
+        setInterval(function () { actualizarDatos(); }, 2000);
+    </script>
+</body>
+
+</html>
