@@ -2,15 +2,18 @@
 Maqueta de invernadero automatizado.  
 
 Hardware:  
-- ESP32
+- Módulo ESP32
 - Pantalla LCD con controlador ILI9341
-- Touch resistivo con controlador XPT2046
-- Ventiladores con puente H DRV8833
+- Panel touch resistivo con controlador XPT2046
+- Ventiladores 91mm x 91mm 12V
+- Puente H DRV8833
 - Sensor de temperatura y humedad DHT22
-- Bomba de agua activada con relevador
-- Atomizador de agua
-- Sensor de humedad de suelo
-- Iluminación con LEDs RGB
+- Bomba de agua peristáltica
+- Módulo de 2 relevadores de 5V
+- Atomizador de agua piezoeléctrico
+- Sensor de humedad de suelo HW-080
+- Iluminación con LEDs RGB 12V
+- Fuente de alimentación de 12V
 
 En la carpeta "codigo" están los programas escritos en el IDE de Arduino.  
 En la carpeta "diagramas" están los diagramas de conexiones creados con Fritzing.  
