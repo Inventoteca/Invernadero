@@ -22,6 +22,7 @@
 #define FONDO 0x1084
 #define PANEL 0x526d
 #define GRIS70 0x4a69
+#define ICON TFT_CYAN
 
 #include <SPI.h>
 #include <TFT_eSPI.h>      // Hardware-specific library
@@ -35,10 +36,11 @@ TFT_eSPI tft = TFT_eSPI(); // objeto para manejar la pantalla
 // Set REPEAT_CAL to true instead of false to run calibration
 // again, otherwise it will only be done once.
 // Repeat calibration if you change the screen rotation.
-#define REPEAT_CAL false
+#define REPEAT_CAL true
 // en lugar de usar este define se usará un botón para iniciar la calibración
 
 // Botones de la pantalla principal
+TFT_eSPI_Button b[8]; //objetos botón
 const int bx[8] = { 20,  20,  20, 180, 250, 180, 250, 180}; //x top-left corner
 const int by[8] = { 20,  90, 160,  20,  20,  90,  90, 160}; //y top-left corner
 const int bw[8] = {140, 140, 140,  60,  60,  60,  60, 130}; //wdith
@@ -49,7 +51,12 @@ const uint8_t* bi[8] = { //icons
   th32_bits, drop32_bits, grass32_bits,
   fan32_bits, lamp32_bits, sprink32_bits, pump32_bits, 0
 };
-TFT_eSPI_Button b[8]; //objetos botón
+const int bix[8] = { //icon x top-left corner
+  40 - 16, 40 - 16, 40 - 16, 210 - 16, 280 - 16, 210 - 16, 280 - 16, 0
+};
+const int biy[8] = { //icon y top-left corner
+  50 - 16, 120 - 16, 190 - 16, 50 - 16, 50 - 16, 120 - 16, 120 - 16, 0
+};
 
 //===================================================================
 // Definir pines
@@ -99,7 +106,7 @@ void setup() {
 
   // Initialise the TFT screen
   tft.init();
-  tft.setRotation(1);//3 // Set the rotation before we calibrate
+  tft.setRotation(3);//3 // Set the rotation before we calibrate
   touch_calibrate(); // Calibrate and retrieve the scaling factors
   //tft.fillScreen(TFT_BLACK); // Clear the screen
 
@@ -144,6 +151,9 @@ void loop(void) {
       //acción
       //drawUI();
       b[i].drawButton(false); //dibujar normal
+      if (i != 7) {
+        tft.drawXBitmap(bix[i], biy[i], bi[i], 32, 32, ICON);
+      }
       switch (i) {
         case 0: //temperatura
           break;
@@ -190,8 +200,6 @@ void drawButton() {
 
 //------------------------------------------------------------------------------------------
 void drawUI() {
-  //tft.fillScreen(TFT_BLACK);
-  //tft.drawRoundRect(10, 10, 150, 220, 10, tft.color565(19, 19, 19));
   tft.fillScreen(FONDO);
 
   // Fuentes
