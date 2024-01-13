@@ -294,8 +294,20 @@ void loop(void) {
         if (i != 7) {
           tft.drawXBitmap(bix[i], biy[i], bi[i], 32, 32, ICON);
         }
+
+        /*
+          Cambiar a otra pantalla
+          primer se dibuja otra UI y se crean nuevos botones
+          (ya podrían estar creados desde el principio)
+          Ahora la detección de clics se hace con otro conjunto de botones
+          Cómo ordenar los botones?
+
+          En los sliders se dibuja el boton como fondo
+          encima se dibuja un rectángulo alargado y un círculo
+        */
         switch (i) {
           case 0: //temperatura
+            Serial.println("clic temperatura");
             break;
           case 1: //humedad del aire
             break;
