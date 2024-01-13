@@ -161,9 +161,9 @@ void setup() {
 
   setupUI0(); //Asignar valores a los botones
   setupUI1();
-  //drawUI0(); //Dibujar interfaz
-  drawUI1();
-  while(true) {}
+  drawUI0(); //Dibujar interfaz
+  //drawUI1();
+  //while (true) {}
 }
 
 //------------------------------------------------------------------------------------------
@@ -279,9 +279,15 @@ void loop(void) {
   if ((unsigned long)(millis() - touch_now) > TOUCH_PERIOD) {
     switch (pantalla) {//revisar el conjunto de botones correcto
       case 0:
-        loopUI0();
+        if (pantalla_inicia) {
+          pantalla_inicia = false;
+          drawUI0();
+        }
+        else {
+          loopUI0();
+        }
         break;
-        
+
       case 1:
         if (pantalla_inicia) {
           pantalla_inicia = false;
