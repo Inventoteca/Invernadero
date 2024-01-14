@@ -38,10 +38,11 @@ TFT_eSPI tft = TFT_eSPI(); // objeto para manejar la pantalla
 // en lugar de usar este define se usará un botón para iniciar la calibración
 
 // La detección de clics en la pantalla se realiza por periodos
-#define TOUCH_PERIOD 100 //66 //periodo
+#define TOUCH_PERIOD 50 //66 //periodo
 unsigned long touch_now; //marca temporal
 
 // Pantallas
+#include "Slider.h"
 int pantalla = 0; //seleccionar pantalla 0 (principal)
 bool pantalla_inicia = false;
 #include "ui0.h"

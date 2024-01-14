@@ -11,9 +11,6 @@
   0.3 agrega varias pantallas con controles deslizantes
 */
 
-// Código para el display
-#include "display.h"
-
 //===================================================================
 // Definir pines
 #define PIN_SUELOD 34 //sensor de humedad del suelo (lectura digital)
@@ -72,7 +69,7 @@ uint8_t vent2 = 0;
 //(https://randomnerdtutorials.com/esp32-pwm-arduino-ide/)
 //los ventiladores se activan cuando la temperatura ambiente sobrepasa un valor
 //uint8_t lim_temperatura = 20; //en grados celcius
-float lim_temperatura = 20; //en grados celcius
+int lim_temperatura = 20; //en grados celcius
 //para asignar este limite se puede usar una barra deslizadora de 10 a 50 grados
 //cuál es el rango ideal?
 //los ventiladores pueden encender con una velocidad proporcional a la temperatura
@@ -121,6 +118,9 @@ bool bomba_auto = true; //bamba automática (se activa con la humedad del suelo)
   y luego regresa a su valor por default
   También se puede reactivar el control automático si se reasigna el valor límite
 */
+
+// Código para el display
+#include "display.h"
 
 //------------------------------------------------------------------------------------------
 void setup() {
@@ -277,6 +277,7 @@ void loop(void) {
 
   //Detectar clics en la pantalla ============================================
   if ((unsigned long)(millis() - touch_now) > TOUCH_PERIOD) {
+    touch_now = millis();
     switch (pantalla) {//revisar el conjunto de botones correcto
       case 0:
         if (pantalla_inicia) {
@@ -288,11 +289,7 @@ void loop(void) {
         }
         break;
 
-      case 1:
-        if (pantalla_inicia) {
-          pantalla_inicia = false;
-          drawUI1();
-        }
+      case 1: loopUI1();
         break;
     }
   }//fin TOUCH_PERIOD

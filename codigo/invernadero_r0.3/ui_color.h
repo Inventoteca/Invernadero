@@ -1,42 +1,56 @@
 /*
-  User interface 0
-  Página principal
+  User interface 1
+  Página para establecer el limite de temperatura
 */
 
-//#include "Slider.h"
+// Esta pantalla solo tiene 2 botones
+TFT_eSPI_Button b1[4]; //objetos botón
+const int bx1[4] = { 20,  20,  20, 130}; //x top-left corner
+const int by1[4] = { 50, 100, 150, 200}; //y top-left corner
+const int bw1[4] = {280, 280, 280,  60}; //wdith
+const int bh1[4] = { 40,  40,  40,  40}; //height
+char* bl1[4] = {"", "", "", "OK"}; //labels
+const uint16_t bc1[4] {PANEL, PANEL, PANEL, PANEL}; //colors
 
-// Botones de la pantalla principal
-TFT_eSPI_Button b0[8]; //objetos botón
-const int bx0[8] = { 20,  20,  20, 180, 250, 180, 250, 180}; //x top-left corner
-const int by0[8] = { 20,  90, 160,  20,  20,  90,  90, 160}; //y top-left corner
-const int bw0[8] = {140, 140, 140,  60,  60,  60,  60, 130}; //wdith
-const int bh0[8] = { 60,  60,  60,  60,  60,  60,  60,  60}; //height
-char* bl0[8] = {"", "", "", "", "", "", "", "CONECTAR"}; //labels
-const uint16_t bc0[8] {0, 0, 0, PANEL, PANEL, PANEL, PANEL, PANEL}; //colors
-const uint8_t* bi0[8] = { //icons (todos tienen icono excepto el último)
+//objetos slider
+//Slider s10(&tft, 40,  65, 240, 10, 10, 0.0, 10.0, TFT_WHITE, TFT_CYAN);
+//Slider s11(&tft, 40, 115, 240, 10, 10, 0.0, 10.0, TFT_WHITE, TFT_CYAN);
+//Slider s12(&tft, 40, 165, 240, 10, 10, 0.0, 10.0, TFT_WHITE, TFT_CYAN);
+//Slider s10(&tft, 40,  65, 240, 10, 10, 0.0, 10.0, TFT_CYAN, TFT_WHITE);
+//Slider s11(&tft, 40, 115, 240, 10, 10, 0.0, 10.0, TFT_CYAN, TFT_WHITE);
+//Slider s12(&tft, 40, 165, 240, 10, 10, 0.0, 10.0, TFT_CYAN, TFT_WHITE);
+//Slider s10(&tft, 40,  65, 240, 10, 10, 0.0, 10.0, TFT_WHITE, TFT_RED);
+//Slider s11(&tft, 40, 115, 240, 10, 10, 0.0, 10.0, TFT_WHITE, TFT_GREEN);
+//Slider s12(&tft, 40, 165, 240, 10, 10, 0.0, 10.0, TFT_WHITE, TFT_BLUE);
+Slider s10(&tft, 40,  65, 240, 10, 10, 0.0, 10.0, TFT_RED, TFT_WHITE);
+Slider s11(&tft, 40, 115, 240, 10, 10, 0.0, 10.0, TFT_GREEN, TFT_WHITE);
+Slider s12(&tft, 40, 165, 240, 10, 10, 0.0, 10.0, TFT_BLUE, TFT_WHITE);
+
+//no hay iconos ni texto aparte
+/*const uint8_t* bi0[8] = { //icons (todos tienen icono excepto el último)
   th32_bits, drop32_bits, grass32_bits,
   fan32_bits, lamp32_bits, sprink32_bits, pump32_bits, 0
-};
-const int bix0[8] = { //icon x top-left corner
+  };
+  const int bix0[8] = { //icon x top-left corner
   45 - 16, 45 - 16, 45 - 16, 210 - 16, 280 - 16, 210 - 16, 280 - 16, 0
-};
-const int biy0[8] = { //icon y top-left corner
+  };
+  const int biy0[8] = { //icon y top-left corner
   50 - 16, 120 - 16, 190 - 16, 50 - 16, 50 - 16, 120 - 16, 120 - 16, 0
-};
+  };*/
 //posición del texto de los primeros 3 botones (temperatura, humedad y humedad del suelo)
-const int btx0[3] = {70, 70, 70};
-const int bty0[3] = {40, 110, 180};
+//const int btx0[3] = {70, 70, 70};
+//const int bty0[3] = {40, 110, 180};
 
 //--------------------------------------------------------------------------------------
-void setupUI0() {
+void setupUI1() {
   // Inicializar botones con los valores declarados arriba
-  for (uint8_t i = 0; i < 8; i++) {
-    b0[i].initButtonUL(&tft, bx0[i], by0[i], bw0[i], bh0[i], bc0[i], bc0[i], TFT_WHITE, bl0[i], 1);
+  for (uint8_t i = 0; i < 4; i++) {
+    b1[i].initButtonUL(&tft, bx1[i], by1[i], bw1[i], bh1[i], bc1[i], bc1[i], TFT_WHITE, bl1[i], 1);
   }
 }
 
 //--------------------------------------------------------------------------------------
-void loopUI0() {
+void loopUI1() {
   // Pressed will be set true is there is a valid touch on the screen
   uint16_t tx, ty, tz; // To store the touch coordinates
   //bool pressed = tft.getTouch(&tx, &ty, 100); //using threshold
@@ -83,8 +97,6 @@ void loopUI0() {
       switch (i) {
         case 0: //temperatura
           Serial.println("clic temperatura");
-          pantalla = 1;
-          pantalla_inicia = true;
           break;
         case 1: //humedad del aire
           Serial.println("clic humedad");
@@ -113,36 +125,24 @@ void loopUI0() {
 }//fin loopUI0
 
 //--------------------------------------------------------------------------------------
-void drawUI0() {
+void drawUI1() {
   tft.fillScreen(FONDO);
-  // Fuentes
-  // En la fuente 1 el signo de grados es \xF7 (hexadecimal) o \367 (octal)
-  // En las fuentes 2 y 4 el signo de grados es el acento grave
-  // Tamaños que se ven bien
-  // - Fuente 1 x3 o x4
-  // - Fuente 2 x2 o x3
-  // - Fuente 4 x1 porque el pixelado se ve feo
 
-  // Grupo 1
   tft.setTextFont(4);
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE);
-  tft.setTextDatum(TL_DATUM); //top-centre
-  tft.fillRoundRect(10, 10, 160, 220, 4, PANEL);
-  for (uint8_t i = 0; i < 3; i++) {
-    b0[i].drawButton(); //normal
-    tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, TFT_CYAN);
-  }
-  //tft.drawString("26 `C", btx0[0], bty0[0]);
-  //tft.drawString("50%", btx0[1], bty0[1]);
-  //tft.drawString("10%", btx0[2], bty0[2]);
+  tft.setTextDatum(TC_DATUM); //top-centre
 
-  // Grupo 2
-  tft.setTextFont(2);
-  tft.setTextSize(1);
-  for (uint8_t i = 3; i < 7; i++) {
-    b0[i].drawButton(); //normal
-    tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, TFT_CYAN);
+  tft.drawString("Color R:10 G:10 B:10", 160, 10);
+  //tft.drawString("R:10 G:10 B:10", 160, 20);
+
+  for (uint8_t i = 0; i < 3; i++) {
+    b1[i].drawButton(); //normal
   }
-  b0[7].drawButton(); //el último botón no lleva icono
+  tft.setTextFont(2);
+  b1[3].drawButton();
+
+  s10.drawSlider();
+  s11.drawSlider();
+  s12.drawSlider();
 }

@@ -3,111 +3,9 @@
   Página para establecer el limite de temperatura
 */
 
-// Esta pantalla solo tiene 2 botones
-TFT_eSPI_Button b1[4]; //objetos botón
-const int bx1[4] = { 20,  20,  20, 130}; //x top-left corner
-const int by1[4] = { 50, 100, 150, 200}; //y top-left corner
-const int bw1[4] = {280, 280, 280,  60}; //wdith
-const int bh1[4] = { 40,  40,  40,  40}; //height
-char* bl1[4] = {"", "", "", "OK"}; //labels
-const uint16_t bc1[4] {PANEL, PANEL, PANEL, PANEL}; //colors
-//no hay iconos ni texto aparte
-/*const uint8_t* bi0[8] = { //icons (todos tienen icono excepto el último)
-  th32_bits, drop32_bits, grass32_bits,
-  fan32_bits, lamp32_bits, sprink32_bits, pump32_bits, 0
-  };
-  const int bix0[8] = { //icon x top-left corner
-  45 - 16, 45 - 16, 45 - 16, 210 - 16, 280 - 16, 210 - 16, 280 - 16, 0
-  };
-  const int biy0[8] = { //icon y top-left corner
-  50 - 16, 120 - 16, 190 - 16, 50 - 16, 50 - 16, 120 - 16, 120 - 16, 0
-  };*/
-//posición del texto de los primeros 3 botones (temperatura, humedad y humedad del suelo)
-//const int btx0[3] = {70, 70, 70};
-//const int bty0[3] = {40, 110, 180};
-
-//--------------------------------------------------------------------------------------
-void setupUI1() {
-  // Inicializar botones con los valores declarados arriba
-  for (uint8_t i = 0; i < 4; i++) {
-    b1[i].initButtonUL(&tft, bx1[i], by1[i], bw1[i], bh1[i], bc1[i], bc1[i], TFT_WHITE, bl1[i], 1);
-  }
-}
-
-//--------------------------------------------------------------------------------------
-void loopUI1() {
-  // Pressed will be set true is there is a valid touch on the screen
-  uint16_t tx, ty, tz; // To store the touch coordinates
-  //bool pressed = tft.getTouch(&tx, &ty, 100); //using threshold
-  tft.getTouchRaw(&tx, &ty);
-  tft.convertRawXY(&tx, &ty);
-  tz = tft.getTouchRawZ();
-  bool pressed2 = tz > 600;
-  //Serial.printf("x: %i     ", tx);
-  //Serial.printf("y: %i     ", ty);
-  //Serial.printf("z: %i \n", tz);
-
-  for (uint8_t i = 0; i < 8; i++) { //revisar los botones
-    if ((/*pressed or */pressed2) and b0[i].contains(tx, ty)) { //si el botón es tocado
-      b0[i].press(true); //marcar como presionado
-    } else {
-      b0[i].press(false); //en caso contrario, marcar como no presionado
-    }
-
-    // Si el botón se acaba de presionar, dibujarlo presionado
-    if (b0[i].justPressed()) {
-      tft.setTextFont(2);
-      b0[i].drawButton(true); //inverted/pressed
-    }
-
-    // Si el botón se acaba de soltar, realizar una acción
-    if (b0[i].justReleased()) {
-      //acción
-      tft.setTextFont(2);
-      b0[i].drawButton(false); //dibujar normal
-      if (i != 7) { //dibujar el icono correspondiente encima del botón
-        tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, ICON);
-      }
-
-      /*
-        Cambiar a otra pantalla
-        primer se dibuja otra UI y se crean nuevos botones
-        (ya podrían estar creados desde el principio)
-        Ahora la detección de clics se hace con otro conjunto de botones
-        Cómo ordenar los botones?
-
-        En los sliders se dibuja el boton como fondo
-        encima se dibuja un rectángulo alargado y un círculo
-      */
-      switch (i) {
-        case 0: //temperatura
-          Serial.println("clic temperatura");
-          break;
-        case 1: //humedad del aire
-          Serial.println("clic humedad");
-          break;
-        case 2: //humedad del suelo
-          Serial.println("clic humedad suelo");
-          break;
-        case 3: //ventilador
-          Serial.println("clic ventilador");
-          break;
-        case 4: //LEDs
-          Serial.println("clic leds");
-          break;
-        case 5: //spray/atomizador
-          Serial.println("clic spray");
-          break;
-        case 6: //bomba de agua
-          Serial.println("clic bomba");
-          break;
-        case 7: //conectar
-          Serial.println("clic conectar");
-          break;
-      }
-    }
-  }//fin for
-}//fin loopUI0
+// Esta pantalla tiene 2 botones y 1 slider
+TFT_eSPI_Button b1[2]; //objetos botón
+Slider s11(&tft, 40, 115, 240, 10, 10, 10.0, 30.0, TFT_CYAN, TFT_WHITE);
 
 //--------------------------------------------------------------------------------------
 void drawUI1() {
@@ -117,14 +15,81 @@ void drawUI1() {
   tft.setTextSize(1);
   tft.setTextColor(TFT_WHITE);
   tft.setTextDatum(TC_DATUM); //top-centre
+  tft.drawString("Limite de temperatura", 160, 10);
+  tft.drawString("20 `C", 160, 40);
 
-  tft.drawString("Color de la luz", 160, 0);
-  tft.drawString("R:10 G:10 B:10", 160, 20);
+  b1[0].drawButton(); //normal
+  s11.drawSlider();
 
-  for (uint8_t i = 0; i < 3; i++) {
-    b1[i].drawButton(); //normal
-    //tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, TFT_CYAN);
-  }
   tft.setTextFont(2);
-  b1[3].drawButton();
+  b1[1].drawButton();
 }
+
+//--------------------------------------------------------------------------------------
+void setupUI1() {
+  // Inicializar botones
+  b1[0].initButtonUL(&tft,  20, 100, 280, 40, PANEL, PANEL, TFT_WHITE, "", 1);
+  b1[1].initButtonUL(&tft, 130, 170,  60, 60, PANEL, PANEL, TFT_WHITE, "OK", 1);
+}
+
+//--------------------------------------------------------------------------------------
+void loopUI1() {
+  if (pantalla_inicia) {
+    pantalla_inicia = false;
+    drawUI1();
+  }
+  else {
+    // Pressed will be set true is there is a valid touch on the screen
+    uint16_t tx, ty, tz; // To store the touch coordinates
+    //bool pressed = tft.getTouch(&tx, &ty, 100); //using threshold
+    tft.getTouchRaw(&tx, &ty);
+    tft.convertRawXY(&tx, &ty);
+    tz = tft.getTouchRawZ();
+    bool pressed = tz > 600;
+    //Serial.printf("x: %i     ", tx);
+    //Serial.printf("y: %i     ", ty);
+    //Serial.printf("z: %i \n", tz);
+
+    for (uint8_t i = 0; i < 2; i++) { //revisar los botones
+      if (pressed and b1[i].contains(tx, ty)) { //si el botón es tocado
+        b1[i].press(true); //marcar como presionado
+      } else {
+        b1[i].press(false); //en caso contrario, marcar como no presionado
+      }
+
+      // Si el botón del slider se está presionando, actualizar slider
+      if (b1[i].isPressed() && i == 0) {
+        s11.drawKnob(PANEL); //dibujar knob para borrar el anterior
+        s11.touch(tx); //actualizar valor
+        s11.drawSlider(); //dibujar slider
+
+        //dibujar el nuevo valor en la pantalla
+        tft.setTextFont(4);
+        tft.setTextSize(1);
+        tft.setTextColor(TFT_WHITE, FONDO);
+        tft.setTextDatum(TC_DATUM); //top-centre
+        lim_temperatura = round(s11.getV()); //asignar valor redondeado
+        String temp = String(lim_temperatura) + " `C";
+        tft.drawString(temp, 160, 40);
+        Serial.print("lim_temperatura = ");
+        Serial.println(temp);
+      }
+
+      // Si el botón OK se acaba de presionar, dibujarlo presionado
+      if (b1[i].justPressed() && i == 1) {
+        tft.setTextFont(2);
+        b1[i].drawButton(true); //inverted/pressed
+      }
+
+      // Si el botón OK se acaba de soltar, regresar a la pantalla principal
+      if (b1[i].justReleased() && i == 1) {
+        tft.setTextFont(2);
+        b1[i].drawButton(false); //dibujar normal
+        Serial.println("clic OK");
+        pantalla = 0;
+        pantalla_inicia = true;
+      }
+
+    }//fin for
+  }
+}//fin loopUI0
