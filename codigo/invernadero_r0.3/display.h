@@ -41,12 +41,22 @@ TFT_eSPI tft = TFT_eSPI(); // objeto para manejar la pantalla
 #define TOUCH_PERIOD 50 //66 //periodo
 unsigned long touch_now; //marca temporal
 
-// Pantallas
-#include "Slider.h"
+// Pantallas o páginas
+#include "Slider.h" //clase Slider
 int pantalla = 0; //seleccionar pantalla 0 (principal)
-bool pantalla_inicia = false;
-#include "ui0.h"
-#include "ui1.h"
+bool pantalla_inicia = false; //indica evento de inicio de pantalla
+#include "ui0.h" //principal
+#include "ui1.h" //temperatura
+#include "ui2.h" //humedad
+#include "ui3.h" //humedad del suelo
+#include "ui4.h" //ventiladores
+#include "ui5.h" //color
+/*
+  Cambiar a otra pantalla
+  primer se dibuja otra UI y se crean nuevos botones
+  (ya podrían estar creados desde el principio)
+  Ahora la detección de clics se hace con otro conjunto de botones
+*/
 
 //------------------------------------------------------------------------------------------
 void touch_calibrate()

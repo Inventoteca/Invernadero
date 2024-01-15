@@ -3,8 +3,6 @@
   Página principal
 */
 
-//#include "Slider.h"
-
 // Botones de la pantalla principal
 TFT_eSPI_Button b0[8]; //objetos botón
 const int bx0[8] = { 20,  20,  20, 180, 250, 180, 250, 180}; //x top-left corner
@@ -28,91 +26,6 @@ const int btx0[3] = {70, 70, 70};
 const int bty0[3] = {40, 110, 180};
 
 //--------------------------------------------------------------------------------------
-void setupUI0() {
-  // Inicializar botones con los valores declarados arriba
-  for (uint8_t i = 0; i < 8; i++) {
-    b0[i].initButtonUL(&tft, bx0[i], by0[i], bw0[i], bh0[i], bc0[i], bc0[i], TFT_WHITE, bl0[i], 1);
-  }
-}
-
-//--------------------------------------------------------------------------------------
-void loopUI0() {
-  // Pressed will be set true is there is a valid touch on the screen
-  uint16_t tx, ty, tz; // To store the touch coordinates
-  //bool pressed = tft.getTouch(&tx, &ty, 100); //using threshold
-  tft.getTouchRaw(&tx, &ty);
-  tft.convertRawXY(&tx, &ty);
-  tz = tft.getTouchRawZ();
-  bool pressed2 = tz > 600;
-  //Serial.printf("x: %i     ", tx);
-  //Serial.printf("y: %i     ", ty);
-  //Serial.printf("z: %i \n", tz);
-
-  for (uint8_t i = 0; i < 8; i++) { //revisar los botones
-    if ((/*pressed or */pressed2) and b0[i].contains(tx, ty)) { //si el botón es tocado
-      b0[i].press(true); //marcar como presionado
-    } else {
-      b0[i].press(false); //en caso contrario, marcar como no presionado
-    }
-
-    // Si el botón se acaba de presionar, dibujarlo presionado
-    if (b0[i].justPressed()) {
-      tft.setTextFont(2);
-      b0[i].drawButton(true); //inverted/pressed
-    }
-
-    // Si el botón se acaba de soltar, realizar una acción
-    if (b0[i].justReleased()) {
-      //acción
-      tft.setTextFont(2);
-      b0[i].drawButton(false); //dibujar normal
-      if (i != 7) { //dibujar el icono correspondiente encima del botón
-        tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, ICON);
-      }
-
-      /*
-        Cambiar a otra pantalla
-        primer se dibuja otra UI y se crean nuevos botones
-        (ya podrían estar creados desde el principio)
-        Ahora la detección de clics se hace con otro conjunto de botones
-        Cómo ordenar los botones?
-
-        En los sliders se dibuja el boton como fondo
-        encima se dibuja un rectángulo alargado y un círculo
-      */
-      switch (i) {
-        case 0: //temperatura
-          Serial.println("clic temperatura");
-          pantalla = 1;
-          pantalla_inicia = true;
-          break;
-        case 1: //humedad del aire
-          Serial.println("clic humedad");
-          break;
-        case 2: //humedad del suelo
-          Serial.println("clic humedad suelo");
-          break;
-        case 3: //ventilador
-          Serial.println("clic ventilador");
-          break;
-        case 4: //LEDs
-          Serial.println("clic leds");
-          break;
-        case 5: //spray/atomizador
-          Serial.println("clic spray");
-          break;
-        case 6: //bomba de agua
-          Serial.println("clic bomba");
-          break;
-        case 7: //conectar
-          Serial.println("clic conectar");
-          break;
-      }
-    }
-  }//fin for
-}//fin loopUI0
-
-//--------------------------------------------------------------------------------------
 void drawUI0() {
   tft.fillScreen(FONDO);
   // Fuentes
@@ -133,16 +46,128 @@ void drawUI0() {
     b0[i].drawButton(); //normal
     tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, TFT_CYAN);
   }
-  //tft.drawString("26 `C", btx0[0], bty0[0]);
-  //tft.drawString("50%", btx0[1], bty0[1]);
-  //tft.drawString("10%", btx0[2], bty0[2]);
+  tft.drawString(String(temperatura, 0) + " `C", btx0[0], bty0[0]);
+  tft.drawString(String(humedad, 0) + "%  ", btx0[1], bty0[1]);
+  tft.drawString(String(humedad_suelo) + "%  ", btx0[2], bty0[2]);
 
   // Grupo 2
   tft.setTextFont(2);
   tft.setTextSize(1);
-  for (uint8_t i = 3; i < 7; i++) {
+  for (uint8_t i = 3; i < 5; i++) {
     b0[i].drawButton(); //normal
     tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, TFT_CYAN);
   }
-  b0[7].drawButton(); //el último botón no lleva icono
+  //icono de spray cambia de color
+  b0[5].drawButton(); //normal
+  tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, spray ? TFT_CYAN : 0);
+  //icono de bomba cambia de color
+  b0[6].drawButton(); //normal
+  tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, bomba ? TFT_CYAN : 0);
+  //el último botón no lleva icono
+  b0[7].drawButton();
 }
+
+//--------------------------------------------------------------------------------------
+void setupUI0() {
+  // Inicializar botones con los valores declarados arriba
+  for (uint8_t i = 0; i < 8; i++) {
+    b0[i].initButtonUL(&tft, bx0[i], by0[i], bw0[i], bh0[i], bc0[i], bc0[i], TFT_WHITE, bl0[i], 1);
+  }
+}
+
+//--------------------------------------------------------------------------------------
+void loopUI0() {
+  if (pantalla_inicia) {
+    pantalla_inicia = false;
+    drawUI0();
+  }
+  else {
+    // Pressed will be set true is there is a valid touch on the screen
+    uint16_t tx, ty, tz; // To store the touch coordinates
+    //bool pressed = tft.getTouch(&tx, &ty, 100); //using threshold
+    tft.getTouchRaw(&tx, &ty);
+    tft.convertRawXY(&tx, &ty);
+    tz = tft.getTouchRawZ();
+    bool pressed2 = tz > 600;
+    //Serial.printf("x: %i     ", tx);
+    //Serial.printf("y: %i     ", ty);
+    //Serial.printf("z: %i \n", tz);
+
+    for (uint8_t i = 0; i < 8; i++) { //revisar los botones
+      if ((/*pressed or */pressed2) and b0[i].contains(tx, ty)) { //si el botón es tocado
+        b0[i].press(true); //marcar como presionado
+      } else {
+        b0[i].press(false); //en caso contrario, marcar como no presionado
+      }
+
+      // Si el botón se acaba de presionar, dibujarlo presionado
+      if (b0[i].justPressed()) {
+        tft.setTextFont(2);
+        b0[i].drawButton(true); //inverted/pressed
+      }
+
+      // Si el botón se acaba de soltar, realizar una acción
+      if (b0[i].justReleased()) {
+        //acción
+        tft.setTextFont(2);
+        b0[i].drawButton(false); //dibujar normal
+        if (i != 7) { //dibujar el icono correspondiente encima del botón
+          tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, ICON);
+        }
+
+        switch (i) {
+          case 0: //temperatura
+            Serial.println("clic temperatura");
+            vent_auto = true; //ventilador automático
+            pantalla = 1;
+            pantalla_inicia = true;
+            break;
+          case 1: //humedad del aire
+            Serial.println("clic humedad");
+            spray_auto = true; //spray/nebulizador automático
+            pantalla = 2;
+            pantalla_inicia = true;
+            break;
+          case 2: //humedad del suelo
+            Serial.println("clic humedad suelo");
+            bomba_auto = true; //bomba automática
+            pantalla = 3;
+            pantalla_inicia = true;
+            break;
+          case 3: //ventilador
+            Serial.println("clic ventilador");
+            vent_auto = false; //ventilador manual
+            pantalla = 4;
+            pantalla_inicia = true;
+            break;
+          case 4: //LEDs
+            Serial.println("clic leds");
+            pantalla = 5;
+            pantalla_inicia = true;
+            break;
+          case 5: //spray/atomizador
+            Serial.println("clic spray");
+            spray_auto = false; //spray/nebulizador manual
+            spray = not spray; //invertir estado
+            digitalWrite(PIN_SPRAY, LOW); //recuerda, el relevador se activa en bajo
+            delay(T_PULSO_SPRAY); //tiempo que tarda el pulso
+            digitalWrite(PIN_SPRAY, HIGH); //desactivar relevador
+            tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, spray ? TFT_CYAN : 0);
+            Serial.println(spray ? "Spray ON (manual)" : "Spray OFF (manual)");
+            break;
+          case 6: //bomba de agua
+            Serial.println("clic bomba");
+            bomba_auto = false; //bomba manual
+            bomba = not bomba; //invertir estado
+            digitalWrite(PIN_BOMBA, bomba ? LOW : HIGH); //encendido en nivel bajo
+            tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, bomba ? TFT_CYAN : 0);
+            Serial.println(bomba ? "Bomba ON (manual)" : "Bomba OFF (manual)");
+            break;
+          case 7: //conectar
+            Serial.println("clic conectar");
+            break;
+        }
+      }
+    }//fin for
+  }//fin else (pantalla_inicia)
+}//fin loopUI0

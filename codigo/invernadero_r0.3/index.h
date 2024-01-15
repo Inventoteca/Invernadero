@@ -1,0 +1,34 @@
+const char *html = R"(<!DOCTYPE html><html>
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Micro-Invernadero</title>
+        <style>
+            body {color: gray; background-color: #101021; text-align: center; justify-content: center; align-items: center;}
+            div {color: cyan; background-color: #524d6b; padding: 10px; width: 80%; margin-left: 10%; margin-bottom: 20px; border-radius: 10px;}
+            p {color: white; background-color: black; margin-left: 10%; margin-right: 10%; border-radius: 10px;}
+        </style>
+    </head>
+    <body>
+        <div>
+            <p>Temperatura</p>
+            <p>Humedad del aire</p>
+            <p>humedad del suelo</p>
+        </div>
+        <div>
+            <label for="sf1">Ventilador 1</label>
+            <input type="range" name="sf1" id="sf1" min="0" max="100" value="50" style="width: 90%;">
+            <label for="sf2">Ventilador 2</label>
+            <input type="range" name="sf2" id="sf2" min="0" max="100" value="50" style="width: 90%;">
+        </div>
+        <div>
+            <label for="sr">R</label>
+            <input type="range" id="sr" min="0" max="100" value="50">
+            <label for="sr">G</label>
+            <input type="range" id="sg" min="0" max="100" value="50">
+            <label for="sr">B</label>
+            <input type="range" id="sb" min="0" max="100" value="50">
+        </div>
+        
+    </body>
+</html>)";

@@ -62,7 +62,7 @@ class Slider {
       _dpx = t - _x; //calcular delta px
       if (_dpx < 0) _dpx = 0; //restringir al tamaño del slider
       if (_dpx > _w) _dpx = _w;
-      _v =  mapfloat(_dpx, 0, _w, _v1, _v2); //calcular valor en el rango definido anteiormente
+      _v =  mapfloat(_dpx, 0, _w, _v1, _v2); //calcular valor en el rango definido anteriormente
 
       // actualizar posición del knob
       _kx = _x + _dpx;
@@ -70,15 +70,20 @@ class Slider {
     }
 
     // Getters & Setters
-    
+
     float getV() {//value getter
       return _v;
     }
 
-    // asignar el valor implica asignar también delta px
+    // asignar el valor implica asignar también delta pixels (_dpx)
     // es el proceso inverso a touch
-    float setV() {
-      
+    void setV(float v) {
+      if (v < _v1) v = _v1; //retringir a los valores minimo y máximo
+      if (v > _v2) v = _v2;
+      _v = v; //guardar valor en el objeto
+      _dpx = round(mapfloat(_v, _v1, _v2, 0, _w)); //calcular delta pixels
+      _kx = _x + _dpx; // actualizar posición del knob
+      //_ky = (_h / 2) + _y; //esto siempre vale lo mismo
     }
 
   private:
@@ -90,4 +95,4 @@ class Slider {
     uint16_t _bar, _knob; //colors
     int16_t _dpx; //delta pixels
     int16_t _kx, _ky; //knob pos
-};
+}; //fin class Slider

@@ -16,8 +16,9 @@ void drawUI1() {
   tft.setTextColor(TFT_WHITE);
   tft.setTextDatum(TC_DATUM); //top-centre
   tft.drawString("Limite de temperatura", 160, 10);
-  tft.drawString("20 `C", 160, 40);
+  tft.drawString(String(lim_temperatura) + " `C", 160, 40);
 
+  s11.setV(lim_temperatura); //asignar valor del slider
   b1[0].drawButton(); //normal
   s11.drawSlider();
 
@@ -30,6 +31,7 @@ void setupUI1() {
   // Inicializar botones
   b1[0].initButtonUL(&tft,  20, 100, 280, 40, PANEL, PANEL, TFT_WHITE, "", 1);
   b1[1].initButtonUL(&tft, 130, 170,  60, 60, PANEL, PANEL, TFT_WHITE, "OK", 1);
+  s11.setV(lim_temperatura); //asignar valor del slider
 }
 
 //--------------------------------------------------------------------------------------
@@ -58,6 +60,7 @@ void loopUI1() {
       }
 
       // Si el botón del slider se está presionando, actualizar slider
+      // El ventilador pueder cambiar a modo automático
       if (b1[i].isPressed() && i == 0) {
         s11.drawKnob(PANEL); //dibujar knob para borrar el anterior
         s11.touch(tx); //actualizar valor
@@ -73,6 +76,8 @@ void loopUI1() {
         tft.drawString(temp, 160, 40);
         Serial.print("lim_temperatura = ");
         Serial.println(temp);
+
+        //vent_auto = true;
       }
 
       // Si el botón OK se acaba de presionar, dibujarlo presionado
@@ -82,14 +87,17 @@ void loopUI1() {
       }
 
       // Si el botón OK se acaba de soltar, regresar a la pantalla principal
+      // también se podría cambiar al modo automático del ventilador
+      // como se realiza al pulsar el slider
       if (b1[i].justReleased() && i == 1) {
         tft.setTextFont(2);
         b1[i].drawButton(false); //dibujar normal
         Serial.println("clic OK");
         pantalla = 0;
         pantalla_inicia = true;
+        //vent_auto = true;
       }
 
     }//fin for
-  }
+  }//fin else (pantalla_inicia)
 }//fin loopUI0

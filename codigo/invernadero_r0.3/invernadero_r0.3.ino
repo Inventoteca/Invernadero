@@ -60,8 +60,13 @@ unsigned long sh_now; //sensor humedad marca temporal
 
 //el estado de los ventiladores se guarda en las siguientes variables
 //se usará pwm con resolución de 8 bits (0 a 255)
-uint8_t vent1 = 0;
-uint8_t vent2 = 0;
+//pero se usan otras variables que guardan un valor de 0 a 10
+//uint8_t vent1 = 0;
+//uint8_t vent2 = 0;
+float vent1 = 0;
+float vent2 = 0;
+uint8_t pwm_vent1 = 0;
+uint8_t pwm_vent2 = 0;
 //el ciclo de trabajo asigna con analogWrite,
 //sin embargo la frecuencia del pwm se escucha como zumbico
 //para cambiar a una frecuencia no audible se puede usar la librería ledc
@@ -69,7 +74,10 @@ uint8_t vent2 = 0;
 //(https://randomnerdtutorials.com/esp32-pwm-arduino-ide/)
 //los ventiladores se activan cuando la temperatura ambiente sobrepasa un valor
 //uint8_t lim_temperatura = 20; //en grados celcius
+
 int lim_temperatura = 20; //en grados celcius
+//la lectura del sensor es float, se debe usar el mismo tipo de variable?
+
 //para asignar este limite se puede usar una barra deslizadora de 10 a 50 grados
 //cuál es el rango ideal?
 //los ventiladores pueden encender con una velocidad proporcional a la temperatura
@@ -89,6 +97,10 @@ uint8_t pwm_b = 0;
 uint8_t def_r = 255;
 uint8_t def_g = 255;
 uint8_t def_b = 255;
+//
+float val_r = 0;
+float val_g = 0;
+float val_b = 0;
 
 //la bomba de agua se activa con un relevador. Tiene lógica invertida:
 //cuando el pin está en HIGH, la bomba se apaga
@@ -101,7 +113,8 @@ bool spray = false; //estado del spray
 //qué duración debe tener ese pulso?
 #define T_PULSO_SPRAY 100 //milisegundos
 //el relevador se activa un momento y luego se desactiva
-float lim_humedad = 60; //si baja de este valor, se activa el nebulizador
+int lim_humedad = 60; //si baja de este valor, se activa el nebulizador
+//float lim_humedad = 60; //usar float?
 
 //puede existir un control para seleccionar funcionamiento manual o automático
 //por ahora se cambiará a manual si se cambian los valores de los actuadores
@@ -121,6 +134,8 @@ bool bomba_auto = true; //bamba automática (se activa con la humedad del suelo)
 
 // Código para el display
 #include "display.h"
+
+#include "server.h"
 
 //------------------------------------------------------------------------------------------
 void setup() {
@@ -159,9 +174,26 @@ void setup() {
   touch_calibrate(); // Calibrate and retrieve the scaling factors
   //tft.fillScreen(TFT_BLACK); // Clear the screen
 
-  setupUI0(); //Asignar valores a los botones
-  setupUI1();
-  drawUI0(); //Dibujar interfaz
+  // Mensaje de bienvenida
+  tft.fillScreen(FONDO);
+  tft.setTextFont(4);
+  tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE);
+  tft.setTextDatum(TC_DATUM); //top-centre
+  tft.drawString("MICRO-INVERNADERO", 160, 80);
+  tft.drawString("EXPERIMENTAL PORTATIL", 160, 110);
+  delay(2000);
+
+  serverSetup();
+
+  //Inicializar controles de todas las pantallas/páginas
+  setupUI0(); //principal
+  setupUI1(); //temperatura
+  setupUI2(); //humedad
+  setupUI3(); //humedad suelo
+  setupUI4(); //ventiladores
+  setupUI5(); //color
+  drawUI0(); //Dibujar interfaz principal
   //drawUI1();
   //while (true) {}
 }
@@ -186,7 +218,7 @@ void loop(void) {
       tft.setTextSize(1);
       tft.setTextColor(TFT_WHITE, TFT_BLACK);
       String t = String(temperatura, 0) + " `C  ";
-      String h = String(humedad, 0) + "%  ";
+      String h = String(humedad, 0) + "%   ";
       tft.drawString(t, btx0[0], bty0[0]);
       tft.drawString(h, btx0[1], bty0[1]);
     }
@@ -195,18 +227,18 @@ void loop(void) {
     if (vent_auto) {
       //si la temperatura sobrepasa el límite
       if (temperatura > lim_temperatura) {
-        vent1 = 255; //encender a la máxima velocidad
-        vent2 = 255;
-        analogWrite(PIN_VENT1, vent1);
-        analogWrite(PIN_VENT2, vent2);
+        vent1 = 10; //encender a la máxima velocidad
+        vent2 = 10;
+        analogWrite(PIN_VENT1, vent1 * 25.5);
+        analogWrite(PIN_VENT2, vent2 * 25.5);
         Serial.println("Vent ON (auto)");
       }
       //si la temperatura está debajo del límite
       else if (temperatura < lim_temperatura) {
         vent1 = 0; //apagar ventiladores
         vent2 = 0;
-        analogWrite(PIN_VENT1, vent1);
-        analogWrite(PIN_VENT2, vent2);
+        analogWrite(PIN_VENT1, vent1 * 25.5);
+        analogWrite(PIN_VENT2, vent2 * 25.5);
         Serial.println("Vent OFF (auto)");
       }
     }//fin if vent_auto
@@ -222,6 +254,7 @@ void loop(void) {
           digitalWrite(PIN_SPRAY, HIGH); //desactivar relevador
           spray = true; //guardar estado actual
           Serial.println("Spray ON (auto)");
+          if (pantalla == 0) tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, TFT_CYAN);
         }
       }
       // si la humedad está arriba del límite
@@ -233,6 +266,7 @@ void loop(void) {
           digitalWrite(PIN_SPRAY, HIGH); //desactivar relevador
           spray = false; //guardar estado actual
           Serial.println("Spray OFF (auto)");
+          if (pantalla == 0) tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, 0);
         }
       }
     } //fin if spray_auto
@@ -254,7 +288,7 @@ void loop(void) {
       tft.setTextFont(4);
       tft.setTextSize(1);
       tft.setTextColor(TFT_WHITE, TFT_BLACK);
-      String hs = String(humedad_suelo) + "%  ";
+      String hs = String(humedad_suelo) + "%   ";
       tft.drawString(hs, btx0[2], bty0[2]);
     }
 
@@ -265,12 +299,14 @@ void loop(void) {
         digitalWrite(PIN_BOMBA, LOW); //encendido en nivel bajo
         bomba = true; //guardar estado actual
         Serial.println("Bomba ON (auto)");
+        if (pantalla == 0) tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, TFT_CYAN);
       }
       //en cambio, si la humedad del suelo está arriba del límite
       if (humedad_suelo > lim_humedad_suelo) {
         digitalWrite(PIN_BOMBA, HIGH); //apagado en nivel alto
         bomba = false; //guardar estado actual
         Serial.println("Bomba OFF (auto)");
+        if (pantalla == 0) tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, 0);
       }
     }
   }
@@ -278,18 +314,21 @@ void loop(void) {
   //Detectar clics en la pantalla ============================================
   if ((unsigned long)(millis() - touch_now) > TOUCH_PERIOD) {
     touch_now = millis();
-    switch (pantalla) {//revisar el conjunto de botones correcto
-      case 0:
-        if (pantalla_inicia) {
-          pantalla_inicia = false;
-          drawUI0();
-        }
-        else {
-          loopUI0();
-        }
-        break;
 
+    //realizar acciones de la pantalla conrrespondiente
+    switch (pantalla)
+    {
+      case 0: loopUI0();
+        break;
       case 1: loopUI1();
+        break;
+      case 2: loopUI2();
+        break;
+      case 3: loopUI3();
+        break;
+      case 4: loopUI4();
+        break;
+      case 5: loopUI5();
         break;
     }
   }//fin TOUCH_PERIOD
