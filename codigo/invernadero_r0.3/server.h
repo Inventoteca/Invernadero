@@ -66,14 +66,14 @@ void handleControlRequest(WiFiClient &client, String device, String state) {
     analogWrite(PIN_VENT1, map(sliderValues[0], 0, 10, 0, 255));
     vent_auto = false;
   }
-  
+
   else if (device == "Ventilador_2") {
     sliderValues[1] = state.toInt();
     vent2 = sliderValues[1];
     analogWrite(PIN_VENT2, map(sliderValues[1], 0, 10, 0, 255));
     vent_auto = false;
-  } 
-  
+  }
+
   else if (device == "R") {
     sliderValues[2] = state.toInt();
     val_r = sliderValues[2];

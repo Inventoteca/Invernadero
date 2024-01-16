@@ -10,29 +10,32 @@ TFT_eSPI_Button b6; //objetos botón
 void drawBitmapScale(TFT_eSPI *tf, int x, int y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t fg, uint8_t sc) {
   int32_t i, j, byteWidth = (w + 7) / 8;
 
-    for (j = 0; j < h; j++) {
-      for (i = 0; i < w; i++ ) {
-        if (pgm_read_byte(bitmap + j * byteWidth + i / 8) & (128 >> (i & 7))) {
-          //drawPixel(x + i, y + j, color);
-          tf->fillRect(x+(i*sc), y+(j*sc), sc, sc, fg);
-        }
+  for (j = 0; j < h; j++) {
+    for (i = 0; i < w; i++ ) {
+      //if (pgm_read_byte(bitmap + j * byteWidth + i / 8) & (128 >> (i & 7))) {
+      if (pgm_read_byte(bitmap + j * byteWidth + i / 8) & (1 << (i & 7))) {
+        //drawPixel(x + i, y + j, color);
+        tf->fillRect(x + (i * sc), y + (j * sc), sc, sc, fg);
       }
     }
+  }
 }
 
 //--------------------------------------------------------------------------------------
 void drawUI6() {
-  tft.fillScreen(FONDO);
+  tft.fillScreen(TFT_WHITE);
 
   tft.setTextFont(2);
   tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE);
+  tft.setTextColor(FONDO); //TFT_WHITE
   tft.setTextDatum(TC_DATUM); //top-centre
   tft.drawString("Nombre de red: Invernadero", 160, 10);
   tft.drawString("URL: 192.168.4.1", 160, 25);
 
-  drawBitmapScale(&tft, 0, 47, qr_wifi_29, 29, 29, TFT_CYAN, 5);
-  drawBitmapScale(&tft, 170, 45, qr_url_25, 25, 25, TFT_CYAN, 6);
+  //drawBitmapScale(&tft, 0, 47, qr_wifi_29, 29, 29, TFT_CYAN, 5);
+  //drawBitmapScale(&tft, 170, 45, qr_url_25, 25, 25, TFT_CYAN, 6);
+  drawBitmapScale(&tft, 10, 62, qr_wifi_29, 29, 29, FONDO, 4);
+  drawBitmapScale(&tft, 185, 57, qr_url_25, 25, 25, FONDO, 5);
 
   //tft.setTextFont(2);
   b6.drawButton();
@@ -63,26 +66,26 @@ void loopUI6() {
     //Serial.printf("z: %i \n", tz);
 
     //for (uint8_t i = 0; i < 2; i++) { //revisar los botones
-      if (pressed and b6.contains(tx, ty)) { //si el botón es tocado
-        b6.press(true); //marcar como presionado
-      } else {
-        b6.press(false); //en caso contrario, marcar como no presionado
-      }
+    if (pressed and b6.contains(tx, ty)) { //si el botón es tocado
+      b6.press(true); //marcar como presionado
+    } else {
+      b6.press(false); //en caso contrario, marcar como no presionado
+    }
 
-      // Si el botón OK se acaba de presionar, dibujarlo presionado
-      if (b6.justPressed()) {
-        tft.setTextFont(2);
-        b6.drawButton(true); //inverted/pressed
-      }
+    // Si el botón OK se acaba de presionar, dibujarlo presionado
+    if (b6.justPressed()) {
+      tft.setTextFont(2);
+      b6.drawButton(true); //inverted/pressed
+    }
 
-      // Si el botón OK se acaba de soltar, regresar a la pantalla principal
-      if (b6.justReleased()) {
-        tft.setTextFont(2);
-        b6.drawButton(false); //dibujar normal
-        Serial.println("clic OK");
-        pantalla = 0;
-        pantalla_inicia = true;
-      }
+    // Si el botón OK se acaba de soltar, regresar a la pantalla principal
+    if (b6.justReleased()) {
+      tft.setTextFont(2);
+      b6.drawButton(false); //dibujar normal
+      Serial.println("clic OK");
+      pantalla = 0;
+      pantalla_inicia = true;
+    }
 
     //}//fin for
   }//fin else (pantalla_inicia)

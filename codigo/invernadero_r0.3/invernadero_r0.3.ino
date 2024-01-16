@@ -183,7 +183,7 @@ void setup() {
   tft.setTextDatum(TC_DATUM); //top-centre
   tft.drawString("MICRO-INVERNADERO", 160, 80);
   tft.drawString("EXPERIMENTAL PORTATIL", 160, 110);
-  
+
   // Iniciar server
   serverSetup();
   delay(2000); //esperar para que se vea el mensaje de bienvenida
@@ -340,6 +340,6 @@ void loop(void) {
 
   // Actualizar server ===================================================
   serverLoop();
-  
+
 }//fin loop()
 //Fin del programa
