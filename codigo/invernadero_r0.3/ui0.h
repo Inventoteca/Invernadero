@@ -165,6 +165,8 @@ void loopUI0() {
             break;
           case 7: //conectar
             Serial.println("clic conectar");
+            pantalla = 6;
+            pantalla_inicia = true;
             break;
         }
       }

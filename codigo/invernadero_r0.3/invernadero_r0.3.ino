@@ -135,6 +135,7 @@ bool bomba_auto = true; //bamba automática (se activa con la humedad del suelo)
 // Código para el display
 #include "display.h"
 
+// Código para el access point y página web
 #include "server.h"
 
 //------------------------------------------------------------------------------------------
@@ -166,7 +167,7 @@ void setup() {
 
   // Use serial port
   Serial.begin(115200);
-  Serial.print("\nMICRO INVERNADERO\n");
+  Serial.print("\nMICRO-INVERNADERO\n");
 
   // Initialise the TFT screen
   tft.init();
@@ -194,6 +195,7 @@ void setup() {
   setupUI3(); //humedad suelo
   setupUI4(); //ventiladores
   setupUI5(); //color
+  setupUI6(); //conectar
   drawUI0(); //Dibujar interfaz principal
   //drawUI1();
   //while (true) {}
@@ -330,6 +332,8 @@ void loop(void) {
       case 4: loopUI4();
         break;
       case 5: loopUI5();
+        break;
+      case 6: loopUI6();
         break;
     }
   }//fin TOUCH_PERIOD

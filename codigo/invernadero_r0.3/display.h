@@ -15,6 +15,9 @@
 #include "icons/lamp32.h" //lamp
 #include "icons/sprink32.h" //sprinkler
 #include "icons/pump32.h" //water pump
+// qr
+#include "icons/qr_wifi_29.h"
+#include "icons/qr_url_25.h"
 
 // Colores
 #define FONDO 0x1084
@@ -51,6 +54,7 @@ bool pantalla_inicia = false; //indica evento de inicio de pantalla
 #include "ui3.h" //humedad del suelo
 #include "ui4.h" //ventiladores
 #include "ui5.h" //color
+#include "ui6.h" //conectar
 /*
   Cambiar a otra pantalla
   primer se dibuja otra UI y se crean nuevos botones
