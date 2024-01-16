@@ -111,7 +111,7 @@ bool bomba = false; //estado de la boma, el pin se escribirá invertido
 bool spray = false; //estado del spray
 //pero necesita un pulso (flanco descendente) para activarse y otro pulso para desactivarse
 //qué duración debe tener ese pulso?
-#define T_PULSO_SPRAY 100 //milisegundos
+#define T_PULSO_SPRAY 50 //milisegundos
 //el relevador se activa un momento y luego se desactiva
 int lim_humedad = 60; //si baja de este valor, se activa el nebulizador
 //float lim_humedad = 60; //usar float?
@@ -182,9 +182,10 @@ void setup() {
   tft.setTextDatum(TC_DATUM); //top-centre
   tft.drawString("MICRO-INVERNADERO", 160, 80);
   tft.drawString("EXPERIMENTAL PORTATIL", 160, 110);
-  delay(2000);
-
+  
+  // Iniciar server
   serverSetup();
+  delay(2000); //esperar para que se vea el mensaje de bienvenida
 
   //Inicializar controles de todas las pantallas/páginas
   setupUI0(); //principal
@@ -299,14 +300,14 @@ void loop(void) {
         digitalWrite(PIN_BOMBA, LOW); //encendido en nivel bajo
         bomba = true; //guardar estado actual
         Serial.println("Bomba ON (auto)");
-        if (pantalla == 0) tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, TFT_CYAN);
+        if (pantalla == 0) tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, TFT_CYAN);
       }
       //en cambio, si la humedad del suelo está arriba del límite
       if (humedad_suelo > lim_humedad_suelo) {
         digitalWrite(PIN_BOMBA, HIGH); //apagado en nivel alto
         bomba = false; //guardar estado actual
         Serial.println("Bomba OFF (auto)");
-        if (pantalla == 0) tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, 0);
+        if (pantalla == 0) tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, 0);
       }
     }
   }
@@ -332,4 +333,9 @@ void loop(void) {
         break;
     }
   }//fin TOUCH_PERIOD
+
+  // Actualizar server ===================================================
+  serverLoop();
+  
 }//fin loop()
+//Fin del programa

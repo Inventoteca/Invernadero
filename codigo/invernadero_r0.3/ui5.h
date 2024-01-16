@@ -44,6 +44,9 @@ void drawUI5() {
   for (uint8_t i = 0; i < 3; i++) {
     b5[i].drawButton(); //normal
   }
+  s50.setV(val_r);
+  s51.setV(val_g);
+  s52.setV(val_b);
   s50.drawSlider();
   s51.drawSlider();
   s52.drawSlider();

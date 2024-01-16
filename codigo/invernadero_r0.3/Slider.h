@@ -3,7 +3,7 @@
   Slider
   el area clicable está definida por un botón
   dibuja un rectángulo que representa un riel
-  y un círculo que representa un perilla
+  y un círculo que se desliza
 
   variables:
   forma 1 x,y, w,h (mejor)
@@ -27,6 +27,8 @@
 
 */
 
+// Función utilizada por la clase Slider
+// como la función map de arduino pero para números de tipo float
 float mapfloat(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }

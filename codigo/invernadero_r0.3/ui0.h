@@ -152,7 +152,7 @@ void loopUI0() {
             digitalWrite(PIN_SPRAY, LOW); //recuerda, el relevador se activa en bajo
             delay(T_PULSO_SPRAY); //tiempo que tarda el pulso
             digitalWrite(PIN_SPRAY, HIGH); //desactivar relevador
-            tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, spray ? TFT_CYAN : 0);
+            tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, spray ? TFT_CYAN : 0); //cambiar color del icono
             Serial.println(spray ? "Spray ON (manual)" : "Spray OFF (manual)");
             break;
           case 6: //bomba de agua
@@ -160,7 +160,7 @@ void loopUI0() {
             bomba_auto = false; //bomba manual
             bomba = not bomba; //invertir estado
             digitalWrite(PIN_BOMBA, bomba ? LOW : HIGH); //encendido en nivel bajo
-            tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, bomba ? TFT_CYAN : 0);
+            tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, bomba ? TFT_CYAN : 0); //cambiar color del icono
             Serial.println(bomba ? "Bomba ON (manual)" : "Bomba OFF (manual)");
             break;
           case 7: //conectar
