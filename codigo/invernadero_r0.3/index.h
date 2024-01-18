@@ -1,4 +1,4 @@
-const char *html = R"(
+const char *html = R"rawString(
 <!DOCTYPE html>
 <html>
 
@@ -18,13 +18,21 @@ const char *html = R"(
       margin-left: 5%;
       margin-right: 5%;
       background-color: #524d6b;
-      padding:10px;
+      padding: 10px;
       border-radius: 10px;
     }
 
-    .slider {width: 70%;}
-    
-    .negro {margin-left: 25%; margin-right: 25%; background-color: black; padding:10px; border-radius:10px;}
+    .slider {
+      width: 70%;
+    }
+
+    .negro {
+      margin-left: 25%;
+      margin-right: 25%;
+      background-color: black;
+      padding: 10px;
+      border-radius: 10px;
+    }
   </style>
 </head>
 
@@ -40,54 +48,56 @@ const char *html = R"(
     <p id='humedadSuelo' class="negro">60%</p>
   </div>
 
+  <h3>Temperatura requerida: <span id="vlimtemp">20</span></h3>
+  <input type="range" id="limtemp" class="slider" min="10" max="30" value="20"
+    oninput="updateSliderValue('limtemp', 'vlimtemp')">
+
+  <h3>Humedad requerida: <span id="vlimhum"></span></h3>
+  <input type="range" id="limhum" class="slider" min="0" max="100" value="50"
+    oninput="updateSliderValue('limhum', 'vlimhum')">
+
+  <h3>Humedad del suelo requerida: <span id="vlimhums"></span></h3>
+  <input type="range" id="limhums" class="slider" min="0" max="100" value="50"
+    oninput="updateSliderValue('limhums', 'vlimhums')">
+
   <h3>Bomba</h3>
-  <label class='switch'>
-    <input type='checkbox' id='toggleBomba' onchange='toggleBomba()'>
-    <span class='slider round'></span>
-  </label>
+  <input type='checkbox' id='bomba' onchange='toggleBomba()'>
 
   <h3>Humidificador</h3>
-  <label class='switch'>
-    <input type='checkbox' id='toggleHumidificador' onchange='toggleHumidificador()'>
-    <span class='slider round'></span>
-  </label>
+  <input type='checkbox' id='spray' onchange='toggleHumidificador()'>
 
-  <h3>Ventilador_1: <span id='valueVentilador_1'>5</span></h3>
-  <input type='range' id='Ventilador_1' class='slider' min='0' max='10' value='5'
-    oninput='updateSliderValue("Ventilador_1", "valueVentilador_1")'>
+  <h3>Ventilador_1: <span id='vvent1'>5</span></h3>
+  <input type='range' id='vent1' class='slider' min='0' max='10' value='5'
+    oninput='updateSliderValue("vent1", "vvent1")'>
 
-  <h3>Ventilador_2: <span id='valueVentilador_2'>5</span></h3>
-  <input type='range' id='Ventilador_2' class='slider' min='0' max='10' value='5'
-    oninput='updateSliderValue("Ventilador_2", "valueVentilador_2")'>
+  <h3>Ventilador_2: <span id='vvent2'>5</span></h3>
+  <input type='range' id='vent2' class='slider' min='0' max='10' value='5'
+    oninput='updateSliderValue("vent2", "vvent2")'>
 
-  <h3>R: <span id='valueR'>5</span></h3>
-  <input type='range' id='R' class='slider' min='0' max='10' value='5' oninput='updateSliderValue("R", "valueR")'>
+  <h3>R: <span id='vR'>5</span></h3>
+  <input type='range' id='R' class='slider' min='0' max='10' value='5' oninput='updateSliderValue("R", "vR")'>
 
-  <h3>G: <span id='valueG'>5</span></h3>
-  <input type='range' id='G' class='slider' min='0' max='10' value='5' oninput='updateSliderValue("G", "valueG")'>
+  <h3>G: <span id='vG'>5</span></h3>
+  <input type='range' id='G' class='slider' min='0' max='10' value='5' oninput='updateSliderValue("G", "vG")'>
 
-  <h3>B: <span id='valueB'>5</span></h3>
-  <input type='range' id='B' class='slider' min='0' max='10' value='5' oninput='updateSliderValue("B", "valueB")'>
+  <h3>B: <span id='vB'>5</span></h3>
+  <input type='range' id='B' class='slider' min='0' max='10' value='5' oninput='updateSliderValue("B", "vB")'>
 
   <p class="negro"></p>
 
   <script>
     function toggleBomba() {
-      var estado = document.getElementById('toggleBomba').checked;
+      var estado = document.getElementById('bomba').checked;
       enviarDatos('bomba', estado);
     }
     function toggleHumidificador() {
-      var estado = document.getElementById('toggleHumidificador').checked;
-      enviarDatos('humidificador', estado);
+      var estado = document.getElementById('spray').checked;
+      enviarDatos('spray', estado);
     }
     function updateSliderValue(sliderId, valueId) {
       var valor = document.getElementById(sliderId).value;
       document.getElementById(valueId).innerText = valor; //innerText innerHTML
       enviarDatos(sliderId, valor);
-    }
-    function updateVariable(variable, valor) { //parece que esta función no se usa
-      document.getElementById('input' + variable).value = valor;
-      enviarDatos(variable, valor);
     }
     function enviarDatos(dispositivo, estado) {
       var xhttp = new XMLHttpRequest();
@@ -95,7 +105,7 @@ const char *html = R"(
       xhttp.send();
     }
     function actualizarDatos() {
-      var sliderNames = ["Ventilador_1", "Ventilador_2", "R", "G", "B"];
+      var sliderNames = ["vent1", "vent2", "R", "G", "B", "limtemp", "limhum", "limhums"];
       var xhttp = new XMLHttpRequest();
       xhttp.open('GET', '/datos', true);
       xhttp.onload = function () {
@@ -103,11 +113,11 @@ const char *html = R"(
         document.getElementById('temperatura').innerHTML = datos.temperatura;
         document.getElementById('humedad').innerHTML = datos.humedad;
         document.getElementById('humedadSuelo').innerHTML = datos.humedadSuelo;
-        document.getElementById('toggleBomba').checked = datos.bombaEncendida;
-        document.getElementById('toggleHumidificador').checked = datos.humidificadorEncendido;
-        for (var i = 0; i < 5; i++) {
+        document.getElementById('bomba').checked = datos.bombaEncendida;
+        document.getElementById('spray').checked = datos.humidificadorEncendido;
+        for (var i = 0; i < 8; i++) {
           document.getElementById(sliderNames[i]).value = datos.sliderValues[i];
-          document.getElementById('value' + sliderNames[i]).innerHTML = datos.sliderValues[i];
+          document.getElementById('v' + sliderNames[i]).innerHTML = datos.sliderValues[i];
         }
       };
       xhttp.send();
@@ -116,4 +126,4 @@ const char *html = R"(
   </script>
 </body>
 
-</html>)";
+</html>)rawString";

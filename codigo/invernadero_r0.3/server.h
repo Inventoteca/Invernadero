@@ -1,12 +1,12 @@
 #include <WiFi.h>
-#include "index.h" //contiene archivo html como raw string
+#include "index.h" //contiene código html como raw string
 const char *ssid = "Invernadero"; // Nombre del punto de acceso
 const char *password = "123456789"; // Contraseña del punto de acceso
 WiFiServer server(80); // objeto server
 
 //array para enviar los valores de los sliders
 //int sliderValues[5] = {0, 0, 0, 0, 0};
-float sliderValues[5] = {0, 0, 0, 0, 0};
+float sliderValues[8]; //= {0, 0, 0, 0, 0};
 
 //------------------------------------------------------------------------------------------
 // Respuesta que se envía al cliente cuando este hace una petición
@@ -16,19 +16,21 @@ void sendResponse(WiFiClient &client, const String &response) {
   client.println("Connection: close");
   client.println();
   client.println(response);
+  Serial.println(response);
 }
 
 //------------------------------------------------------------------------------------------
-// String con valores de los sensores y los actuadores
+// Responder a peitición de datos por parte del cliente
+// Se envía una string con valores de los sensores y los actuadores
 void handleDataRequest(WiFiClient &client) {
   String response = "{";
   response += "\"temperatura\":" + String(temperatura, 0) + ",";
   response += "\"humedad\":" + String(humedad, 0) + ",";
   response += "\"humedadSuelo\":" + String(humedad_suelo) + ",";
-  response += "\"bombaEncendida\":" + String(bomba ? "true" : "false") + ",";
-  response += "\"humidificadorEncendido\":" + String(spray ? "true" : "false") + ",";
+  response += "\"bomba\":" + String(bomba ? "true" : "false") + ",";
+  response += "\"spray\":" + String(spray ? "true" : "false") + ",";
   response += "\"sliderValues\":[" + String(sliderValues[0], 0);
-  for (int i = 1; i < 5; i++) {
+  for (int i = 1; i < 8; i++) {
     response += "," + String(sliderValues[i]);
   }
   response += "]}";
@@ -36,6 +38,8 @@ void handleDataRequest(WiFiClient &client) {
   sendResponse(client, response);
 } //fin handleDataRequest
 
+//------------------------------------------------------------------------------------------
+// Responder a solicitud de control por parte del cliente
 // Cambiar las salidas de acuerdo a los valores del web server
 void handleControlRequest(WiFiClient &client, String device, String state) {
   if (device == "bomba") {
@@ -44,7 +48,7 @@ void handleControlRequest(WiFiClient &client, String device, String state) {
     digitalWrite(PIN_BOMBA, bomba ? LOW : HIGH); //se activa en nivel bajo
   }
 
-  else if (device == "humidificador") {
+  else if (device == "spray") {
     bool nuevo_estado = (state == "true");
     //Serial.println("clic spray");
     spray_auto = false; //spray/nebulizador manual
@@ -59,7 +63,7 @@ void handleControlRequest(WiFiClient &client, String device, String state) {
     }
   }
 
-  else if (device == "Ventilador_1") {
+  else if (device == "vent1") {
     sliderValues[0] = state.toInt();
     vent1 = sliderValues[0];
     //Serial.println(sliderValues[0]);
@@ -67,7 +71,7 @@ void handleControlRequest(WiFiClient &client, String device, String state) {
     vent_auto = false;
   }
 
-  else if (device == "Ventilador_2") {
+  else if (device == "vent2") {
     sliderValues[1] = state.toInt();
     vent2 = sliderValues[1];
     analogWrite(PIN_VENT2, map(sliderValues[1], 0, 10, 0, 255));
@@ -86,6 +90,27 @@ void handleControlRequest(WiFiClient &client, String device, String state) {
     sliderValues[4] = state.toInt();
     val_b = sliderValues[4];
     analogWrite(PIN_B, mapfloat(sliderValues[4], 0, 10, 0, 255));
+  }
+
+  else if (device == "limtemp") {//limite de temperatura
+    sliderValues[5] = state.toInt();
+    lim_temperatura = sliderValues[5];
+    //analogWrite(PIN_VENT2, map(sliderValues[1], 0, 10, 0, 255));
+    vent_auto = true; //cambiar a modo automatico
+  }
+
+  else if (device == "limhum") {//limite de humedad
+    sliderValues[6] = state.toInt();
+    lim_humedad = sliderValues[6];
+    //analogWrite(PIN_VENT2, map(sliderValues[1], 0, 10, 0, 255));
+    spray_auto = true; //cambiar a modo automatico
+  }
+
+  else if (device == "limhums") {//limite de humedad del suelo
+    sliderValues[7] = state.toInt();
+    lim_humedad_suelo = sliderValues[7];
+    //analogWrite(PIN_VENT2, map(sliderValues[1], 0, 10, 0, 255));
+    bomba_auto = true; //cambiar a modo automatico
   }
 
   sendResponse(client, "OK");
@@ -119,6 +144,9 @@ void serverLoop() {
         sliderValues[2] = val_r;
         sliderValues[3] = val_g;
         sliderValues[4] = val_b;
+        sliderValues[5] = lim_temperatura;
+        sliderValues[6] = lim_humedad;
+        sliderValues[7] = lim_humedad_suelo;
         handleDataRequest(client); //se envían los datos
         client.stop(); //cerrar la conexión
         return;
