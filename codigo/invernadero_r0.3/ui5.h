@@ -108,7 +108,7 @@ void loopUI5() {
             //tft.setTextDatum(TL_DATUM);
 
             val_r = round(s50.getV());
-            val = "R:" + String(val_r, 0) + " ";
+            val = "R:" + String(val_r, 0) + "  ";
             tft.drawString(val, 100, 10);
             Serial.println(val);
 
@@ -128,7 +128,7 @@ void loopUI5() {
             //tft.setTextDatum(TL_DATUM);
 
             val_g = round(s51.getV());
-            val = "G:" + String(val_g, 0) + " ";
+            val = "G:" + String(val_g, 0) + "  ";
             tft.drawString(val, 170, 10);
             Serial.println(val);
 
@@ -148,7 +148,7 @@ void loopUI5() {
             //tft.setTextDatum(TL_DATUM);
 
             val_b = round(s52.getV());
-            val = "B:" + String(val_b, 0) + " ";
+            val = "B:" + String(val_b, 0) + "  ";
             tft.drawString(val, 240, 10);
             Serial.println(val);
 
