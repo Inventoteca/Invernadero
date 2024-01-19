@@ -113,8 +113,8 @@ const char *html = R"rawString(
         document.getElementById('temperatura').innerHTML = datos.temperatura;
         document.getElementById('humedad').innerHTML = datos.humedad;
         document.getElementById('humedadSuelo').innerHTML = datos.humedadSuelo;
-        document.getElementById('bomba').checked = datos.bombaEncendida;
-        document.getElementById('spray').checked = datos.humidificadorEncendido;
+        document.getElementById('bomba').checked = datos.bomba;
+        document.getElementById('spray').checked = datos.spray;
         for (var i = 0; i < 8; i++) {
           document.getElementById(sliderNames[i]).value = datos.sliderValues[i];
           document.getElementById('v' + sliderNames[i]).innerHTML = datos.sliderValues[i];
@@ -122,7 +122,7 @@ const char *html = R"rawString(
       };
       xhttp.send();
     }
-    setInterval(function () { actualizarDatos(); }, 500);
+    setInterval(function () { actualizarDatos(); }, 1500);
   </script>
 </body>
 
