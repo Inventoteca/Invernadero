@@ -209,11 +209,13 @@ void loop(void) {
     dht.measure(&temperatura, &humedad);
 
     //imprimir en consola
+    /*
     Serial.print("T: ");
     Serial.print(temperatura, 1);
     Serial.print("  H: ");
     Serial.print(humedad, 1);
     Serial.println("%");
+    */
 
     //actualizar pantalla principal
     if (pantalla == 0) {
@@ -282,9 +284,11 @@ void loop(void) {
     sueloa = analogRead(PIN_SUELOA); //lectura analógica
     humedad_suelo = (4095 - sueloa) / 41; //calcular porcentaje de humedad
     //
+    /*
     Serial.print("HS: ");
     Serial.print(humedad_suelo);
     Serial.println("%");
+    */
 
     // Actualizar pantalla 0 (principal)
     if (pantalla == 0) {

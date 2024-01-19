@@ -16,7 +16,7 @@ void sendResponse(WiFiClient &client, const String &response) {
   client.println("Connection: close");
   client.println();
   client.println(response);
-  Serial.println(response);
+  //Serial.println(response);
 }
 
 //------------------------------------------------------------------------------------------
@@ -131,13 +131,13 @@ void serverSetup() {
 void serverLoop() {
   WiFiClient client = server.available(); //ver conexión de clientes
   if (client) { //si se conecta un cliente
-    Serial.println("Cliente conectado"); //enviar mensaje por serial
+    //Serial.println("Cliente conectado"); //enviar mensaje por serial
 
     // Manejar la solicitud de datos
     if (client.available()) {
       String request = client.readStringUntil('\r'); //obtener petición del cliente
       //String request = client.readString();
-      Serial.println(request); //imprimir la petición
+      //Serial.println(request); //imprimir la petición
       if (request.indexOf("/datos") >= 0) { //si la petición tiene "datos"
         sliderValues[0] = vent1; //actualizar array de slider values
         sliderValues[1] = vent2;
