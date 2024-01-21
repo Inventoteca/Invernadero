@@ -79,6 +79,7 @@ void setupUI0() {
 void loopUI0() {
   if (pantalla_inicia) {
     pantalla_inicia = false;
+    digitalWrite(PIN_BEEP, LOW); //cuando inicia la pantalla, apagar buzzer
     drawUI0();
   }
   else {
@@ -109,6 +110,7 @@ void loopUI0() {
       // Si el botón se acaba de soltar, realizar una acción
       if (b0[i].justReleased()) {
         //acción
+        digitalWrite(PIN_BEEP, HIGH); //suena un beep
         tft.setTextFont(2);
         b0[i].drawButton(false); //dibujar normal
         if (i != 7) { //dibujar el icono correspondiente encima del botón
@@ -149,11 +151,12 @@ void loopUI0() {
             Serial.println("clic spray");
             spray_auto = false; //spray/nebulizador manual
             spray = not spray; //invertir estado
-            digitalWrite(PIN_SPRAY, LOW); //recuerda, el relevador se activa en bajo
+            digitalWrite(PIN_SPRAY, HIGH); //recuerda, el relevador se activa en bajo
             delay(T_PULSO_SPRAY); //tiempo que tarda el pulso
-            digitalWrite(PIN_SPRAY, HIGH); //desactivar relevador
+            digitalWrite(PIN_SPRAY, LOW); //desactivar relevador
             tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, spray ? TFT_CYAN : 0); //cambiar color del icono
             Serial.println(spray ? "Spray ON (manual)" : "Spray OFF (manual)");
+            digitalWrite(PIN_BEEP, LOW); //apagar buzzer
             break;
           case 6: //bomba de agua
             Serial.println("clic bomba");
@@ -162,6 +165,8 @@ void loopUI0() {
             digitalWrite(PIN_BOMBA, bomba ? LOW : HIGH); //encendido en nivel bajo
             tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, bomba ? TFT_CYAN : 0); //cambiar color del icono
             Serial.println(bomba ? "Bomba ON (manual)" : "Bomba OFF (manual)");
+            delay(T_PULSO_SPRAY); //retardo para que se escuche el beep
+            digitalWrite(PIN_BEEP, LOW); //apagar buzzer
             break;
           case 7: //conectar
             Serial.println("clic conectar");

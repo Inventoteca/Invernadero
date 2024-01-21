@@ -70,6 +70,7 @@ void setupUI5() {
 void loopUI5() {
   if (pantalla_inicia) {
     pantalla_inicia = false;
+    digitalWrite(PIN_BEEP, LOW);
     drawUI5();
   }
   else {
@@ -166,6 +167,9 @@ void loopUI5() {
 
       // Si el botón se acaba de soltar, regresar a la pantalla principal
       if (b5[i].justReleased() && i == 3) {
+        //
+        digitalWrite(PIN_BEEP, HIGH); //suena un beep
+        //
         tft.setTextFont(2);
         b5[i].drawButton(false); //dibujar normal
         Serial.println("clic OK");

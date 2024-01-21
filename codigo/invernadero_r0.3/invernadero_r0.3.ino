@@ -21,8 +21,13 @@
 #define PIN_G 25 //LED G (usa PMW)
 #define PIN_B 27 //LED B (usa PMW)
 #define PIN_BOMBA 14 //bomba de agua
-#define PIN_SPRAY 13 //atomizador/spray
+#define PIN_SPRAY 4 //controlar atomizador/spray
 // Los pines para la pantalla y el panel touch se definen en "Setup42_ILI9341_ESP32.h"
+// nuevos pines agregados
+#define PIN_BSPRAY 13 //bomba para el spray
+#define PIN_SSPRAY 39 //36//sensor de agua para el spray
+#define PIN_BEEP 12 //2//buzzer piezoeléctrico
+// cada vez que se presiona un botón suena el beep
 
 // sensor de temperatura y humedad
 #define PIN_DHT 15
@@ -111,7 +116,7 @@ bool bomba = false; //estado de la boma, el pin se escribirá invertido
 bool spray = false; //estado del spray
 //pero necesita un pulso (flanco descendente) para activarse y otro pulso para desactivarse
 //qué duración debe tener ese pulso?
-#define T_PULSO_SPRAY 50 //milisegundos
+#define T_PULSO_SPRAY 30 //milisegundos
 //el relevador se activa un momento y luego se desactiva
 int lim_humedad = 60; //si baja de este valor, se activa el nebulizador
 //float lim_humedad = 60; //usar float?
@@ -149,7 +154,10 @@ void setup() {
   pinMode(PIN_G, OUTPUT);
   pinMode(PIN_B, OUTPUT);
   pinMode(PIN_BOMBA, OUTPUT);
-  pinMode(PIN_SPRAY, OUTPUT);
+  pinMode(PIN_SPRAY, OUTPUT); //controlar spray
+  pinMode(PIN_BSPRAY, OUTPUT); //bomba spray
+  pinMode(PIN_SSPRAY, INPUT); //sensor spray
+  pinMode(PIN_BEEP, OUTPUT); //buzzer piezoeléctrico
   //
   analogRead(PIN_SUELOA); //descartar primera lectura
   analogWrite(PIN_VENT1, 0);
@@ -158,22 +166,27 @@ void setup() {
   analogWrite(PIN_G, 0);
   analogWrite(PIN_B, 0);
   digitalWrite(PIN_BOMBA, HIGH); //relevador apagado en HIGH
-  digitalWrite(PIN_SPRAY, HIGH); //relevador apagado en HIGH
+  digitalWrite(PIN_BSPRAY, HIGH); //relevador apagado en HIGH
+  digitalWrite(PIN_SPRAY, LOW);
+  digitalWrite(PIN_BEEP, HIGH); digitalWrite(PIN_BEEP, LOW);
   //
   //dht.begin();
   dht.measure(&temperatura, &humedad); //descartar primera lectura
   dht.measure(&temperatura, &humedad);
   dht_now = millis(); //guardar marca temporal
+  digitalWrite(PIN_BEEP, LOW);
 
   // Use serial port
   Serial.begin(115200);
   Serial.print("\nMICRO-INVERNADERO\n");
+  digitalWrite(PIN_BEEP, LOW);
 
   // Initialise the TFT screen
   tft.init();
   tft.setRotation(3);//3 // Set the rotation before we calibrate
   touch_calibrate(); // Calibrate and retrieve the scaling factors
   //tft.fillScreen(TFT_BLACK); // Clear the screen
+  digitalWrite(PIN_BEEP, LOW);
 
   // Mensaje de bienvenida
   tft.fillScreen(FONDO);
@@ -254,9 +267,9 @@ void loop(void) {
       if (humedad < lim_humedad) {
         //encender el spray solo si está apagado
         if (spray == false) {
-          digitalWrite(PIN_SPRAY, LOW); //recuerda, el relevador se activa en bajo
+          digitalWrite(PIN_SPRAY, HIGH); //recuerda, el relevador se activa en bajo
           delay(T_PULSO_SPRAY); //tiempo que tarda el pulso
-          digitalWrite(PIN_SPRAY, HIGH); //desactivar relevador
+          digitalWrite(PIN_SPRAY, LOW); //desactivar relevador
           spray = true; //guardar estado actual
           Serial.println("Spray ON (auto)");
           if (pantalla == 0) tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, TFT_CYAN);
@@ -266,9 +279,9 @@ void loop(void) {
       else if (humedad > lim_humedad) {
         //apagar el nebulizador spray, solo si está encendido
         if (spray == true) {
-          digitalWrite(PIN_SPRAY, LOW); //recuerda, el relevador se activa en bajo
+          digitalWrite(PIN_SPRAY, HIGH); //recuerda, el relevador se activa en bajo
           delay(T_PULSO_SPRAY); //tiempo que tarda el pulso
-          digitalWrite(PIN_SPRAY, HIGH); //desactivar relevador
+          digitalWrite(PIN_SPRAY, LOW); //desactivar relevador
           spray = false; //guardar estado actual
           Serial.println("Spray OFF (auto)");
           if (pantalla == 0) tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, 0);
@@ -278,12 +291,18 @@ void loop(void) {
   }//fin DHT_PERIOD
 
   // El sensor de humedad de suelo se lee más seguido ===============================
+  // También se lee el sensor de agua dentro para el spray
   if ((unsigned long)(millis() - sh_now) > SH_PERIOD) {
     sh_now = millis();
     suelod = digitalRead(PIN_SUELOD); //lectura digital
     sueloa = analogRead(PIN_SUELOA); //lectura analógica
     humedad_suelo = (4095 - sueloa) / 41; //calcular porcentaje de humedad
     //
+    //sensor de agua para el spray
+    // 0 significa nivel alto, 1 significa nivel bajo
+    //bool sensor_agua = digitalRead(PIN_SSPRAY); 
+    // activar o desactivar la bomba
+    digitalWrite(PIN_BSPRAY, !digitalRead(PIN_SSPRAY));
     /*
     Serial.print("HS: ");
     Serial.print(humedad_suelo);

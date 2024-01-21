@@ -38,6 +38,7 @@ void setupUI1() {
 void loopUI1() {
   if (pantalla_inicia) {
     pantalla_inicia = false;
+    digitalWrite(PIN_BEEP, LOW);
     drawUI1();
   }
   else {
@@ -90,6 +91,9 @@ void loopUI1() {
       // también se podría cambiar al modo automático del ventilador
       // como se realiza al pulsar el slider
       if (b1[i].justReleased() && i == 1) {
+        //
+        digitalWrite(PIN_BEEP, HIGH); //suena un beep
+        //
         tft.setTextFont(2);
         b1[i].drawButton(false); //dibujar normal
         Serial.println("clic OK");

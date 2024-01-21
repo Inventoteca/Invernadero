@@ -39,6 +39,7 @@ void setupUI2() {
 void loopUI2() {
   if (pantalla_inicia) {
     pantalla_inicia = false;
+    digitalWrite(PIN_BEEP, LOW);
     drawUI2();
   }
   else {
@@ -88,6 +89,9 @@ void loopUI2() {
 
       // Si el botón OK se acaba de soltar, regresar a la pantalla principal
       if (b2[i].justReleased() && i == 1) {
+        //
+        digitalWrite(PIN_BEEP, HIGH); //suena un beep
+        //
         tft.setTextFont(2);
         b2[i].drawButton(false); //dibujar normal
         Serial.println("clic OK");
