@@ -1,6 +1,6 @@
 #include <WiFi.h>
 #include "index.h" //contiene código html como raw string
-const char *ssid = "Invernadero"; // Nombre del punto de acceso
+const char *ssid = "Germinador IoT"; // Nombre del punto de acceso
 const char *password = "123456789"; // Contraseña del punto de acceso
 WiFiServer server(80); // objeto server
 
@@ -27,6 +27,7 @@ void handleDataRequest(WiFiClient &client) {
   response += "\"temperatura\":" + String(temperatura, 0) + ",";
   response += "\"humedad\":" + String(humedad, 0) + ",";
   response += "\"humedadSuelo\":" + String(humedad_suelo) + ",";
+  response += "\"ph\":" + String(valor_ph) + ",";
   response += "\"bomba\":" + String(bomba ? "true" : "false") + ",";
   response += "\"spray\":" + String(spray ? "true" : "false") + ",";
   response += "\"sliderValues\":[" + String(sliderValues[0], 0);

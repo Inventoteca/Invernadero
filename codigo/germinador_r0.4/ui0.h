@@ -5,25 +5,25 @@
 
 // Botones de la pantalla principal
 TFT_eSPI_Button b0[8]; //objetos botón
-const int bx0[8] = { 20,  20,  20, 180, 250, 180, 250, 180}; //x top-left corner
-const int by0[8] = { 20,  90, 160,  20,  20,  90,  90, 160}; //y top-left corner
-const int bw0[8] = {140, 140, 140,  60,  60,  60,  60, 130}; //wdith
-const int bh0[8] = { 60,  60,  60,  60,  60,  60,  60,  60}; //height
+const int bx0[8] = { 30,  30,  30, 280, 380, 280, 380, 280}; //x top-left corner
+const int by0[8] = { 30, 100, 170,  20,  20, 120, 120, 240}; //y top-left corner
+const int bw0[8] = {210, 210, 210,  80,  80,  80,  80, 180}; //wdith
+const int bh0[8] = { 50,  50,  50,  80,  80,  80,  80,  60}; //height
 char* bl0[8] = {"", "", "", "", "", "", "", "CONECTAR"}; //labels
-const uint16_t bc0[8] {0, 0, 0, PANEL, PANEL, PANEL, PANEL, PANEL}; //colors
+const uint16_t bc0[8] {TFT_WHITE, TFT_WHITE, TFT_WHITE, PANEL, PANEL, PANEL, PANEL, PANEL}; //colors
 const uint8_t* bi0[8] = { //icons (todos tienen icono excepto el último)
   th32_bits, drop32_bits, grass32_bits,
   fan32_bits, lamp32_bits, sprink32_bits, pump32_bits, 0
 };
 const int bix0[8] = { //icon x top-left corner
-  45 - 16, 45 - 16, 45 - 16, 210 - 16, 280 - 16, 210 - 16, 280 - 16, 0
+  40, 40, 40, 320 - 16, 420 - 16, 320 - 16, 420 - 16, 0
 };
 const int biy0[8] = { //icon y top-left corner
-  50 - 16, 120 - 16, 190 - 16, 50 - 16, 50 - 16, 120 - 16, 120 - 16, 0
+  40, 110, 180, 60 - 16, 60 - 16, 160 - 16, 160 - 16, 0
 };
 //posición del texto de los primeros 3 botones (temperatura, humedad y humedad del suelo)
-const int btx0[3] = {70, 70, 70};
-const int bty0[3] = {40, 110, 180};
+const int btx0[3] = {80, 80, 80};
+const int bty0[3] = {45, 115, 185};
 
 //--------------------------------------------------------------------------------------
 void drawUI0() {
@@ -39,13 +39,17 @@ void drawUI0() {
   // Grupo 1
   tft.setTextFont(4);
   tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE);
+  tft.setTextColor(TFT_BLACK); //WHITE
   tft.setTextDatum(TL_DATUM); //top-centre
-  tft.fillRoundRect(10, 10, 160, 220, 4, PANEL);
+  tft.fillRoundRect(10, 10, 250, 300, 4, PANEL);
   for (uint8_t i = 0; i < 3; i++) {
     b0[i].drawButton(); //normal
-    tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, TFT_CYAN);
+    tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, ICON);
   }
+  // nuevo rectangulo para mostrar PH
+  tft.fillRoundRect(30, 240, 210, 50, 12, TFT_WHITE);
+  tft.drawXBitmap(40, 250, ph32_bits, 32, 32, ICON);
+  //
   tft.drawString(String(temperatura, 0) + " `C", btx0[0], bty0[0]);
   tft.drawString(String(humedad, 0) + "%  ", btx0[1], bty0[1]);
   tft.drawString(String(humedad_suelo) + "%  ", btx0[2], bty0[2]);
@@ -55,14 +59,14 @@ void drawUI0() {
   tft.setTextSize(1);
   for (uint8_t i = 3; i < 5; i++) {
     b0[i].drawButton(); //normal
-    tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, TFT_CYAN);
+    tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, ICON); //TFT_CYAN
   }
   //icono de spray cambia de color
   b0[5].drawButton(); //normal
-  tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, spray ? TFT_CYAN : 0);
+  tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, spray ? ICON : 0);
   //icono de bomba cambia de color
   b0[6].drawButton(); //normal
-  tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, bomba ? TFT_CYAN : 0);
+  tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, bomba ? ICON : 0);
   //el último botón no lleva icono
   b0[7].drawButton();
 }
@@ -71,7 +75,7 @@ void drawUI0() {
 void setupUI0() {
   // Inicializar botones con los valores declarados arriba
   for (uint8_t i = 0; i < 8; i++) {
-    b0[i].initButtonUL(&tft, bx0[i], by0[i], bw0[i], bh0[i], bc0[i], bc0[i], TFT_WHITE, bl0[i], 1);
+    b0[i].initButtonUL(&tft, bx0[i], by0[i], bw0[i], bh0[i], bc0[i], bc0[i], TFT_BLACK, bl0[i], 1); //WHITE
   }
 }
 
@@ -89,7 +93,7 @@ void loopUI0() {
     tft.getTouchRaw(&tx, &ty);
     tft.convertRawXY(&tx, &ty);
     tz = tft.getTouchRawZ();
-    bool pressed2 = tz > 600;
+    bool pressed2 = tz > 500; //600
     //Serial.printf("x: %i     ", tx);
     //Serial.printf("y: %i     ", ty);
     //Serial.printf("z: %i \n", tz);
@@ -155,7 +159,7 @@ void loopUI0() {
             //digitalWrite(PIN_SPRAY, HIGH); //recuerda, el relevador se activa en bajo
             //delay(T_PULSO_SPRAY); //tiempo que tarda el pulso
             //digitalWrite(PIN_SPRAY, LOW); //activar relevador
-            tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, spray ? TFT_CYAN : 0); //cambiar color del icono
+            tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, spray ? ICON : 0); //cambiar color del icono
             Serial.println(spray ? "Spray ON (manual)" : "Spray OFF (manual)");
             delay(T_PULSO_BEEP); //retardo para que se escuche el beep
             digitalWrite(PIN_BEEP, LOW); //apagar buzzer
@@ -165,7 +169,7 @@ void loopUI0() {
             bomba_auto = false; //bomba manual
             bomba = not bomba; //invertir estado
             digitalWrite(PIN_BOMBA, bomba ? LOW : HIGH); //encendido en nivel bajo
-            tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, bomba ? TFT_CYAN : 0); //cambiar color del icono
+            tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, bomba ? ICON : 0); //cambiar color del icono
             Serial.println(bomba ? "Bomba ON (manual)" : "Bomba OFF (manual)");
             delay(T_PULSO_BEEP); //retardo para que se escuche el beep
             digitalWrite(PIN_BEEP, LOW); //apagar buzzer

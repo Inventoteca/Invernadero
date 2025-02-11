@@ -16,16 +16,16 @@
 // Definir pines
 #define PIN_SUELOD 35  //sensor de humedad del suelo (lectura digital)
 #define PIN_SUELOA 34  //sensor de humedad del suelo (lectura analogica)
-#define PIN_PHD 39     //sensor de PH (lectura digital)
-#define PIN_PHA 36     //sensor de PH (lectura analogica)
-#define PIN_VENT1 32   //ventilador 1 (PWM)
-#define PIN_VENT2 33   //ventilador 2 (PMW)
-#define PIN_R 12       //LED R (PMW)
-#define PIN_G 13       //LED G (PMW)
-#define PIN_B 14       //LED B (PMW)
-#define PIN_BOMBA 26   //relevador para bomba de agua
-#define PIN_SPRAY 25   //relevador para bomba de atomizador/spray
-#define PIN_BEEP 17    //buzzer piezoeléctrico
+#define PIN_PHD    36  //sensor de PH (lectura digital)
+#define PIN_PHA    39  //sensor de PH (lectura analogica)
+#define PIN_VENT1  32  //ventilador 1 (PWM)
+#define PIN_VENT2  33  //ventilador 2 (PMW)
+#define PIN_R      12  //LED R (PMW)
+#define PIN_G      13  //LED G (PMW)
+#define PIN_B      14  //LED B (PMW)
+#define PIN_BOMBA  26  //relevador para bomba de agua
+#define PIN_SPRAY  25  //relevador para bomba de atomizador/spray
+#define PIN_BEEP   17  //buzzer piezoeléctrico
 
 // Los pines para la pantalla y el panel touch se definen en "Setup21_ILI9488.h"
 
@@ -62,6 +62,13 @@ int lim_humedad_suelo = 50;  //limite de humedad del suelo
 #define SH_PERIOD 1000  //sensor humedad periodo
 unsigned long sh_now;   //sensor humedad marca temporal
 
+bool phd; //guarda estado de la salida digital del sensor de PH
+int pha; //guarda la lectura analógia (12 bits --> 0 a 4095)
+//el valor de PH se calcula con interpolación lineal. Tenemos 2 valores conocidos:
+//para PH 4.01 la lectura analogica es 4090
+//para PH 6.86 la lectura es 3260
+float valor_ph; // = mapfloat(pha, 4090, 3260, 4.01, 6.86);
+
 //el estado de los ventiladores se guarda en las siguientes variables
 //se usará pwm con resolución de 8 bits (0 a 255)
 //pero se usan otras variables que guardan un valor de 0 a 10
@@ -97,7 +104,7 @@ uint8_t pwm_b = 0;
 //qué condición hace que los leds enciendan?
 //puede ser un temporizador que active la luz por periodos
 //por ahora solo controlarán de forma manual
-//estos son los valores por defatul al encender cuando el control sea atuomático
+//estos son los valores por default al encender cuando el control sea atuomático
 uint8_t def_r = 255;
 uint8_t def_g = 255;
 uint8_t def_b = 255;
@@ -114,8 +121,8 @@ bool bomba = false;  //estado de la boma, el pin se escribirá invertido
 //el nebulizador/atomizador/spray también se activa con un relevador
 bool spray = false;  //estado del spray
 //se necesitaba un pulso, pero ya no
-//pero necesita un pulso (flanco descendente) para activarse y otro pulso para desactivarse
-//qué duración debe tener ese pulso?
+//un pulso (flanco descendente) para activarse y otro pulso para desactivarse
+//qué duración debe tener?
 //#define T_PULSO_SPRAY 30  //milisegundos
 //el relevador se activa un momento y luego se desactiva
 
@@ -198,10 +205,11 @@ void setup() {
   tft.fillScreen(FONDO);
   tft.setTextFont(4);
   tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE);
+  tft.setTextColor(TFT_BLACK); //TFT_WHITE
   tft.setTextDatum(TC_DATUM);  //top-centre
-  tft.drawString("GERMINADOR PARA ZONAS URBANAS", 160, 80);
-  tft.drawString("CONTROLADO MEDIANTE TECNOLOGIA IoT", 160, 110);
+  tft.drawString("GERMINADOR PARA ZONAS URBANAS", 240, 100);
+  tft.drawString("CONTROLADO MEDIANTE", 240, 130);
+  tft.drawString("TECNOLOGIA IoT", 240, 160);
 
   // Iniciar server
   serverSetup();
@@ -226,25 +234,31 @@ void loop(void) {
   if ((unsigned long)(millis() - dht_now) > DHT_PERIOD) {
     dht_now = millis();
     dht.measure(&temperatura, &humedad);
+    //también leer sensor de PH
+    pha = analogRead(PIN_PHA);
+    valor_ph = mapfloat(pha, 4090, 3260, 4.01, 6.86);
 
     //imprimir en consola
-    /*
-    Serial.print("T: ");
-    Serial.print(temperatura, 1);
-    Serial.print("  H: ");
-    Serial.print(humedad, 1);
-    Serial.println("%");
-    */
+    
+      Serial.print("T: ");
+      Serial.print(temperatura, 1);
+      Serial.print("  H: ");
+      Serial.print(humedad, 1);
+      Serial.println("%");
+    
 
     //actualizar pantalla principal
     if (pantalla == 0) {
       tft.setTextFont(4);
       tft.setTextSize(1);
-      tft.setTextColor(TFT_WHITE, TFT_BLACK);
+      tft.setTextColor(TFT_BLACK, TFT_WHITE);
       String t = String(temperatura, 0) + " `C  ";
       String h = String(humedad, 0) + "%   ";
       tft.drawString(t, btx0[0], bty0[0]);
       tft.drawString(h, btx0[1], bty0[1]);
+      //
+      String p = String(valor_ph) + "  ";
+      tft.drawString(p, 80, 255);
     }
 
     //si está activado el control automático del ventilador
@@ -278,7 +292,7 @@ void loop(void) {
           //digitalWrite(PIN_SPRAY, LOW);   //desactivar relevador
           spray = true;                   //guardar estado actual
           Serial.println("Spray ON (auto)");
-          if (pantalla == 0) tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, TFT_CYAN);
+          if (pantalla == 0) tft.drawXBitmap(bix0[5], biy0[5], bi0[5], 32, 32, ICON); //TFT_CYAN
         }
       }
       // si la humedad está arriba del límite
@@ -309,16 +323,16 @@ void loop(void) {
     // activar o desactivar la bomba
     //digitalWrite(PIN_BSPRAY, !digitalRead(PIN_SSPRAY));
     /*
-    Serial.print("HS: ");
-    Serial.print(humedad_suelo);
-    Serial.println("%");
+      Serial.print("HS: ");
+      Serial.print(humedad_suelo);
+      Serial.println("%");
     */
 
     // Actualizar pantalla 0 (principal)
     if (pantalla == 0) {
       tft.setTextFont(4);
       tft.setTextSize(1);
-      tft.setTextColor(TFT_WHITE, TFT_BLACK);
+      tft.setTextColor(TFT_BLACK, TFT_WHITE); //intercambio
       String hs = String(humedad_suelo) + "%   ";
       tft.drawString(hs, btx0[2], bty0[2]);
     }
@@ -331,7 +345,7 @@ void loop(void) {
         bomba = true;                  //guardar estado actual
         Serial.println("Bomba ON (auto)");
         //dibujar icono
-        if (pantalla == 0) tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, TFT_CYAN);
+        if (pantalla == 0) tft.drawXBitmap(bix0[6], biy0[6], bi0[6], 32, 32, ICON); //TFT_CYAN
       }
       //en cambio, si la humedad del suelo está arriba del límite
       if (humedad_suelo > lim_humedad_suelo) {

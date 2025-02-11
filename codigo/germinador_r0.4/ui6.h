@@ -25,26 +25,32 @@ void drawBitmapScale(TFT_eSPI *tf, int x, int y, const uint8_t *bitmap, int16_t 
 void drawUI6() {
   tft.fillScreen(TFT_WHITE);
 
-  tft.setTextFont(2);
+  tft.setTextFont(4);
   tft.setTextSize(1);
-  tft.setTextColor(FONDO); //TFT_WHITE
+  tft.setTextColor(TFT_BLACK); //TFT_WHITE FONDO
   tft.setTextDatum(TC_DATUM); //top-centre
-  tft.drawString("Nombre de red: Invernadero", 160, 10);
-  tft.drawString("URL: 192.168.4.1", 160, 25);
+  //tft.drawString("Nombre de red: Invernadero", 160, 10);
+  //tft.drawString("URL: 192.168.4.1", 160, 25);
+  tft.drawString("Paso 1", 110, 10); //120
+  tft.drawString("Conectar a la red ", 110, 40);
+  tft.drawString("Germinador IoT", 110, 70);
+  tft.drawString("Paso 2", 370, 10); //360
+  tft.drawString("Abrir direccion", 370, 40);
+  tft.drawString("192.168.4.1", 370, 70);
 
   //drawBitmapScale(&tft, 0, 47, qr_wifi_29, 29, 29, TFT_CYAN, 5);
   //drawBitmapScale(&tft, 170, 45, qr_url_25, 25, 25, TFT_CYAN, 6);
-  drawBitmapScale(&tft, 10, 62, qr_wifi_29, 29, 29, FONDO, 4);
-  drawBitmapScale(&tft, 185, 57, qr_url_25, 25, 25, FONDO, 5);
+  drawBitmapScale(&tft, 10,  120, qr_wifi_29, 29, 29, TFT_BLACK, 6);
+  drawBitmapScale(&tft, 295, 120, qr_url_25, 25, 25, TFT_BLACK, 7);
 
-  //tft.setTextFont(2);
+  tft.setTextFont(2);
   b6.drawButton();
 }
 
 //--------------------------------------------------------------------------------------
 void setupUI6() {
   // Inicializar botones
-  b6.initButtonUL(&tft, 130, 200, 60, 40, PANEL, PANEL, TFT_WHITE, "OK", 1);
+  b6.initButtonUL(&tft, 210, 240, 60, 60, PANEL, PANEL, TFT_BLACK, "OK", 1);
 }
 
 //--------------------------------------------------------------------------------------

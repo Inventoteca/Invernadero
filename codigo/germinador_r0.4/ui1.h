@@ -5,7 +5,7 @@
 
 // Esta pantalla tiene 2 botones y 1 slider
 TFT_eSPI_Button b1[2]; //objetos botón
-Slider s11(&tft, 40, 115, 240, 10, 10, 10.0, 30.0, TFT_CYAN, TFT_WHITE);
+Slider s11(&tft, 40, 150, 400, 10, 10, 10.0, 30.0, ICON, TFT_WHITE);
 
 //--------------------------------------------------------------------------------------
 void drawUI1() {
@@ -13,10 +13,10 @@ void drawUI1() {
 
   tft.setTextFont(4);
   tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE);
+  tft.setTextColor(TFT_BLACK);
   tft.setTextDatum(TC_DATUM); //top-centre
-  tft.drawString("Limite de temperatura", 160, 10);
-  tft.drawString(String(lim_temperatura) + " `C", 160, 40);
+  tft.drawString("Limite de temperatura", 240, 20);
+  tft.drawString(String(lim_temperatura) + " `C", 240, 50);
 
   s11.setV(lim_temperatura); //asignar valor del slider
   b1[0].drawButton(); //normal
@@ -29,8 +29,10 @@ void drawUI1() {
 //--------------------------------------------------------------------------------------
 void setupUI1() {
   // Inicializar botones
-  b1[0].initButtonUL(&tft,  20, 100, 280, 40, PANEL, PANEL, TFT_WHITE, "", 1);
-  b1[1].initButtonUL(&tft, 130, 170,  60, 60, PANEL, PANEL, TFT_WHITE, "OK", 1);
+  // el primero rodea al slider
+  b1[0].initButtonUL(&tft,  20, 130, 440, 50, PANEL, PANEL, TFT_BLACK, "", 1);
+  // el segundo es para aceptar y regresar a la pantalla principal
+  b1[1].initButtonUL(&tft, 210, 240,  60, 60, PANEL, PANEL, TFT_BLACK, "OK", 1);
   s11.setV(lim_temperatura); //asignar valor del slider
 }
 
@@ -48,7 +50,7 @@ void loopUI1() {
     tft.getTouchRaw(&tx, &ty);
     tft.convertRawXY(&tx, &ty);
     tz = tft.getTouchRawZ();
-    bool pressed = tz > 600;
+    bool pressed = tz > 900;
     //Serial.printf("x: %i     ", tx);
     //Serial.printf("y: %i     ", ty);
     //Serial.printf("z: %i \n", tz);
@@ -70,11 +72,11 @@ void loopUI1() {
         //dibujar el nuevo valor en la pantalla
         tft.setTextFont(4);
         tft.setTextSize(1);
-        tft.setTextColor(TFT_WHITE, FONDO);
+        tft.setTextColor(TFT_BLACK, FONDO);
         tft.setTextDatum(TC_DATUM); //top-centre
         lim_temperatura = round(s11.getV()); //asignar valor redondeado
         String temp = String(lim_temperatura) + " `C";
-        tft.drawString(temp, 160, 40);
+        tft.drawString(temp, 240, 50);
         Serial.print("lim_temperatura = ");
         Serial.println(temp);
 

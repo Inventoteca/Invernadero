@@ -5,31 +5,32 @@ const char *html = R"rawString(
 <head>
   <meta charset="UTF-8">
   <meta name='viewport' content='width=device-width, initial-scale=1'>
-  <title>Micro-Invernadero</title>
+  <title>Germinador IoT</title>
   <style>
     body {
       font-family: sans-serif;
-      color: lightgray;
-      background-color: #101021;
+      color: black;
+      background-color: white;
       text-align: center;
     }
 
     div {
       margin-left: 5%;
       margin-right: 5%;
-      background-color: #524d6b;
+      background-color: #4a71c5;
       padding: 10px;
       border-radius: 10px;
     }
 
     .slider {
       width: 70%;
+      accent-color: red;
     }
 
     .negro {
       margin-left: 25%;
       margin-right: 25%;
-      background-color: black;
+      background-color: whitesmoke;
       padding: 10px;
       border-radius: 10px;
     }
@@ -37,15 +38,17 @@ const char *html = R"rawString(
 </head>
 
 <body>
-  <h1>Micro-Invernadero</h1>
+  <h1>Germinador IoT</h1>
 
   <div>
     <h3>Temperatura</h3>
     <p id='temperatura' class="negro">20 °C</p>
-    <h3>Humedad</h3>
+    <h3>Humedad del aire</h3>
     <p id='humedad' class="negro">50%</p>
-    <h3>Humedad del Suelo</h3>
+    <h3>Humedad del suelo</h3>
     <p id='humedadSuelo' class="negro">60%</p>
+    <h3>Valor de pH</h3>
+    <p id='ph' class="negro">7.00</p>
   </div>
 
   <h3>Temperatura requerida: <span id="vlimtemp">20</span></h3>
@@ -110,9 +113,10 @@ const char *html = R"rawString(
       xhttp.open('GET', '/datos', true);
       xhttp.onload = function () {
         var datos = JSON.parse(this.responseText);
-        document.getElementById('temperatura').innerHTML = datos.temperatura;
-        document.getElementById('humedad').innerHTML = datos.humedad;
-        document.getElementById('humedadSuelo').innerHTML = datos.humedadSuelo;
+        document.getElementById('temperatura').innerHTML = datos.temperatura + " °C";
+        document.getElementById('humedad').innerHTML = datos.humedad + "%";
+        document.getElementById('humedadSuelo').innerHTML = datos.humedadSuelo + "%";
+        document.getElementById('ph').innerHTML = datos.ph;
         document.getElementById('bomba').checked = datos.bomba;
         document.getElementById('spray').checked = datos.spray;
         for (var i = 0; i < 8; i++) {

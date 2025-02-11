@@ -6,8 +6,8 @@
 // Esta pantalla tiene 3 botones y 2 sliders
 TFT_eSPI_Button b4[3]; //objetos botón
 //los sliders establecen una velocidad de 0 a 10
-Slider s41(&tft, 40,  85, 240, 10, 10, 0.0, 10.0, TFT_CYAN, TFT_WHITE);
-Slider s42(&tft, 40, 135, 240, 10, 10, 0.0, 10.0, TFT_CYAN, TFT_WHITE);
+Slider s41(&tft, 40, 120, 400, 10, 10, 0.0, 10.0, ICON, TFT_WHITE);
+Slider s42(&tft, 40, 180, 400, 10, 10, 0.0, 10.0, ICON, TFT_WHITE);
 
 //--------------------------------------------------------------------------------------
 void drawUI4() {
@@ -15,7 +15,7 @@ void drawUI4() {
 
   tft.setTextFont(4);
   tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE);
+  tft.setTextColor(TFT_BLACK);
   tft.setTextDatum(TL_DATUM); //TC_DATUM top-centre
   //int padding = tft.textWidth("Quick brown", font); // get the width of the widest text in pixels
   //tft.setTextPadding(padding);
@@ -39,9 +39,11 @@ void drawUI4() {
 //--------------------------------------------------------------------------------------
 void setupUI4() {
   // Inicializar botones
-  b4[0].initButtonUL(&tft,  20,  70, 280, 40, PANEL, PANEL, TFT_WHITE, "", 1);
-  b4[1].initButtonUL(&tft,  20, 120, 280, 40, PANEL, PANEL, TFT_WHITE, "", 1);
-  b4[2].initButtonUL(&tft, 130, 170,  60, 60, PANEL, PANEL, TFT_WHITE, "OK", 1);
+  // los 2 primeros rodean a los sliders
+  b4[0].initButtonUL(&tft,  20, 110, 440, 30, PANEL, PANEL, TFT_BLACK, "", 1);
+  b4[1].initButtonUL(&tft,  20, 170, 440, 30, PANEL, PANEL, TFT_BLACK, "", 1);
+  // el tercero es para aceptar y regresar a la pantalla principal
+  b4[2].initButtonUL(&tft, 210, 240,  60, 60, PANEL, PANEL, TFT_BLACK, "OK", 1);
   s41.setV(vent1); //asignar valor del slider
   s42.setV(vent2); //asignar valor del slider
 }
@@ -82,7 +84,7 @@ void loopUI4() {
         //dibujar el nuevo valor en la pantalla
         tft.setTextFont(4);
         tft.setTextSize(1);
-        tft.setTextColor(TFT_WHITE, FONDO);
+        tft.setTextColor(TFT_BLACK, FONDO);
         //tft.setTextDatum(TC_DATUM); //top-centre
         vent1 = round(s41.getV()); //asignar valor redondeado
         String sven = String(vent1, 0) + "  ";
@@ -104,7 +106,7 @@ void loopUI4() {
         //dibujar el nuevo valor en la pantalla
         tft.setTextFont(4);
         tft.setTextSize(1);
-        tft.setTextColor(TFT_WHITE, FONDO);
+        tft.setTextColor(TFT_BLACK, FONDO);
         //tft.setTextDatum(TC_DATUM); //top-centre
         vent2 = round(s42.getV()); //asignar valor redondeado
         String sven = String(vent2, 0) + "  ";

@@ -5,10 +5,10 @@
 
 // Esta pantalla tiene 4 botones y 3 sliders
 TFT_eSPI_Button b5[4]; //objetos botón
-const int bx5[4] = { 20,  20,  20, 130}; //x top-left corner
-const int by5[4] = { 50, 100, 150, 200}; //y top-left corner
-const int bw5[4] = {280, 280, 280,  60}; //wdith
-const int bh5[4] = { 40,  40,  40,  40}; //height
+const int bx5[4] = { 20,  20,  20, 210}; //x top-left corner
+const int by5[4] = { 50, 110, 170, 240}; //y top-left corner
+const int bw5[4] = {440, 440, 440,  60}; //wdith
+const int bh5[4] = { 30,  30,  30,  60}; //height
 char* bl5[4] = {"", "", "", "OK"}; //labels
 const uint16_t bc5[4] {PANEL, PANEL, PANEL, PANEL}; //colors
 
@@ -22,9 +22,9 @@ const uint16_t bc5[4] {PANEL, PANEL, PANEL, PANEL}; //colors
 //Slider s50(&tft, 40,  65, 240, 10, 10, 0.0, 10.0, TFT_WHITE, TFT_RED);
 //Slider s51(&tft, 40, 115, 240, 10, 10, 0.0, 10.0, TFT_WHITE, TFT_GREEN);
 //Slider s52(&tft, 40, 165, 240, 10, 10, 0.0, 10.0, TFT_WHITE, TFT_BLUE);
-Slider s50(&tft, 40,  65, 240, 10, 10, 0.0, 10.0, TFT_RED, TFT_WHITE);
-Slider s51(&tft, 40, 115, 240, 10, 10, 0.0, 10.0, TFT_GREEN, TFT_WHITE);
-Slider s52(&tft, 40, 165, 240, 10, 10, 0.0, 10.0, TFT_BLUE, TFT_WHITE);
+Slider s50(&tft, 40,  60, 400, 10, 10, 0.0, 10.0, TFT_RED, TFT_WHITE);
+Slider s51(&tft, 40, 120, 400, 10, 10, 0.0, 10.0, TFT_GREEN, TFT_WHITE);
+Slider s52(&tft, 40, 180, 400, 10, 10, 0.0, 10.0, TFT_BLUE, TFT_WHITE);
 
 
 //--------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ void drawUI5() {
 
   tft.setTextFont(4);
   tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE);
+  tft.setTextColor(TFT_BLACK);
   tft.setTextDatum(TL_DATUM); //top-left
 
   tft.drawString("Color ", 20, 10);
@@ -59,7 +59,7 @@ void drawUI5() {
 void setupUI5() {
   // Inicializar botones con los valores declarados arriba
   for (uint8_t i = 0; i < 4; i++) {
-    b5[i].initButtonUL(&tft, bx5[i], by5[i], bw5[i], bh5[i], bc5[i], bc5[i], TFT_WHITE, bl5[i], 1);
+    b5[i].initButtonUL(&tft, bx5[i], by5[i], bw5[i], bh5[i], bc5[i], bc5[i], TFT_BLACK, bl5[i], 1);
   }
   s50.setV(val_r); //asignar valor del slider
   s51.setV(val_g); //asignar valor del slider
@@ -105,7 +105,7 @@ void loopUI5() {
             //dibujar el nuevo valor en la pantalla
             tft.setTextFont(4);
             tft.setTextSize(1);
-            tft.setTextColor(TFT_WHITE, FONDO);
+            tft.setTextColor(TFT_BLACK, FONDO);
             //tft.setTextDatum(TL_DATUM);
 
             val_r = round(s50.getV());
@@ -125,7 +125,7 @@ void loopUI5() {
             //dibujar el nuevo valor en la pantalla
             tft.setTextFont(4);
             tft.setTextSize(1);
-            tft.setTextColor(TFT_WHITE, FONDO);
+            tft.setTextColor(TFT_BLACK, FONDO);
             //tft.setTextDatum(TL_DATUM);
 
             val_g = round(s51.getV());
@@ -145,7 +145,7 @@ void loopUI5() {
             //dibujar el nuevo valor en la pantalla
             tft.setTextFont(4);
             tft.setTextSize(1);
-            tft.setTextColor(TFT_WHITE, FONDO);
+            tft.setTextColor(TFT_BLACK, FONDO);
             //tft.setTextDatum(TL_DATUM);
 
             val_b = round(s52.getV());

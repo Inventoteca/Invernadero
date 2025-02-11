@@ -6,7 +6,7 @@
 // Esta pantalla tiene 2 botones y 1 slider
 TFT_eSPI_Button b2[2]; //objetos botón
 //el slider establece un limite de humedad de 0% a 100%
-Slider s2(&tft, 40, 115, 240, 10, 10, 0.0, 100.0, TFT_CYAN, TFT_WHITE);
+Slider s2(&tft, 40, 150, 400, 10, 10, 0.0, 100.0, ICON, TFT_WHITE);
 
 //--------------------------------------------------------------------------------------
 void drawUI2() {
@@ -14,10 +14,10 @@ void drawUI2() {
 
   tft.setTextFont(4);
   tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE);
+  tft.setTextColor(TFT_BLACK); //WHITE
   tft.setTextDatum(TC_DATUM); //top-centre
-  tft.drawString("Limite de humedad", 160, 10);
-  tft.drawString(String(lim_humedad) + "%", 160, 40);
+  tft.drawString("Limite de humedad del aire", 240, 20);
+  tft.drawString("  " + String(lim_humedad) + "%  ", 240, 50);
 
   s2.setV(lim_humedad); //asignar valor del slider
   b2[0].drawButton(); //normal
@@ -30,8 +30,10 @@ void drawUI2() {
 //--------------------------------------------------------------------------------------
 void setupUI2() {
   // Inicializar botones
-  b2[0].initButtonUL(&tft,  20, 100, 280, 40, PANEL, PANEL, TFT_WHITE, "", 1);
-  b2[1].initButtonUL(&tft, 130, 170,  60, 60, PANEL, PANEL, TFT_WHITE, "OK", 1);
+  // el primero rodea al slider
+  b2[0].initButtonUL(&tft,  20, 130, 440, 50, PANEL, PANEL, TFT_BLACK, "", 1);
+  // el segundo es para aceptar y regresar a la pantalla principal
+  b2[1].initButtonUL(&tft, 210, 240,  60, 60, PANEL, PANEL, TFT_BLACK, "OK", 1);
   s2.setV(lim_humedad); //asignar valor del slider
 }
 
@@ -70,11 +72,11 @@ void loopUI2() {
         //dibujar el nuevo valor en la pantalla
         tft.setTextFont(4);
         tft.setTextSize(1);
-        tft.setTextColor(TFT_WHITE, FONDO);
+        tft.setTextColor(TFT_BLACK, FONDO); //WHITE
         tft.setTextDatum(TC_DATUM); //top-centre
         lim_humedad = round(s2.getV()); //asignar valor redondeado
-        String hum = " " + String(lim_humedad) + "% ";
-        tft.drawString(hum, 160, 40);
+        String hum = "  " + String(lim_humedad) + "%  ";
+        tft.drawString(hum, 240, 50);
         Serial.print("lim_humedad = ");
         Serial.println(hum);
 

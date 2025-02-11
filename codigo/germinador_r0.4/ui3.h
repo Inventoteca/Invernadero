@@ -6,7 +6,7 @@
 // Esta pantalla tiene 2 botones y 1 slider
 TFT_eSPI_Button b3[2]; //objetos botón
 //el slider establece un limite de humedad del suelo d 0% a 100%
-Slider s3(&tft, 40, 115, 240, 10, 10, 0.0, 100.0, TFT_CYAN, TFT_WHITE);
+Slider s3(&tft, 40, 150, 400, 10, 10, 0.0, 100.0, ICON, TFT_WHITE);
 
 //--------------------------------------------------------------------------------------
 void drawUI3() {
@@ -14,10 +14,10 @@ void drawUI3() {
 
   tft.setTextFont(4);
   tft.setTextSize(1);
-  tft.setTextColor(TFT_WHITE);
+  tft.setTextColor(TFT_BLACK);
   tft.setTextDatum(TC_DATUM); //top-centre
-  tft.drawString("Lim. humedad del suelo", 160, 10);
-  tft.drawString(String(lim_humedad_suelo) + "%", 160, 40);
+  tft.drawString("Limite de humedad del suelo", 240, 20);
+  tft.drawString("  " + String(lim_humedad_suelo) + "%  ", 240, 50);
 
   s3.setV(lim_humedad_suelo); //asignar valor del slider
   b3[0].drawButton(); //normal
@@ -30,8 +30,10 @@ void drawUI3() {
 //--------------------------------------------------------------------------------------
 void setupUI3() {
   // Inicializar botones
-  b3[0].initButtonUL(&tft,  20, 100, 280, 40, PANEL, PANEL, TFT_WHITE, "", 1);
-  b3[1].initButtonUL(&tft, 130, 170,  60, 60, PANEL, PANEL, TFT_WHITE, "OK", 1);
+  // el primero rodea al slider
+  b3[0].initButtonUL(&tft,  20, 130, 440, 50, PANEL, PANEL, TFT_BLACK, "", 1);
+  // el segundo es para aceptar y regresar a la pantalla principal
+  b3[1].initButtonUL(&tft, 210, 240,  60, 60, PANEL, PANEL, TFT_BLACK, "OK", 1);
   s3.setV(lim_humedad_suelo); //asignar valor del slider
 }
 
@@ -70,11 +72,11 @@ void loopUI3() {
         //dibujar el nuevo valor en la pantalla
         tft.setTextFont(4);
         tft.setTextSize(1);
-        tft.setTextColor(TFT_WHITE, FONDO);
+        tft.setTextColor(TFT_BLACK, FONDO);
         tft.setTextDatum(TC_DATUM); //top-centre
         lim_humedad_suelo = round(s3.getV()); //asignar valor redondeado
         String hums = "  " + String(lim_humedad_suelo) + "%  ";
-        tft.drawString(hums, 160, 40);
+        tft.drawString(hums, 240, 50);
         Serial.print("lim_humedad_suelo = ");
         Serial.println(hums);
 

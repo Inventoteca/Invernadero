@@ -15,15 +15,16 @@
 #include "icons/lamp32.h" //lamp
 #include "icons/sprink32.h" //sprinkler
 #include "icons/pump32.h" //water pump
+#include "icons/ph32.h" //water PH
 // qr
-#include "icons/qr_wifi_29.h"
+#include "icons/qr_wifi_29_germinador.h"
 #include "icons/qr_url_25.h"
 
 // Colores
-#define FONDO 0x1084
-#define PANEL 0x526d
+#define FONDO  TFT_WHITE //0xef5d //0x1084
+#define PANEL  0x4b98 //0x4b98 0x526d 0x7755 0xfba0
 #define GRIS70 0x4a69
-#define ICON TFT_CYAN
+#define ICON   TFT_RED //TFT_CYAN 0xfba0 //0x07e6 verde claro
 
 #include <SPI.h>
 #include <TFT_eSPI.h>      // Hardware-specific library
@@ -63,6 +64,7 @@ bool pantalla_inicia = false; //indica evento de inicio de pantalla
 */
 
 //------------------------------------------------------------------------------------------
+// función para calibrar touch. Se copió de los ejemplos de la libreria TFT_eSPI
 void touch_calibrate()
 {
   uint16_t calData[5]; //array de 5 enteros
