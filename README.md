@@ -123,6 +123,9 @@ https://www.electronicwings.com/esp32/soil-moisture-sensor-interfacing-with-esp3
 Iluminación con LEDs RGB. Funcionan con 12V. Se controlan con MOSFETs y PWM.  
 https://learn.adafruit.com/rgb-led-strips/usage  
 
-
 ## Reloj (opcional)
 Módulo RTC para realizar ciclos que dependen de la hora.  
+
+## Sensor de PH
+Se usa para medir el valor de PH del agua que se usa para regar.  
+Calibración https://tlfong01.blog/2019/04/26/ph-4502c-ph-meter-calibration-notes/  
