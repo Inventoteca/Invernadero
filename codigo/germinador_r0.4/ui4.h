@@ -32,7 +32,8 @@ void drawUI4() {
   s42.setV(vent2); //asignar valor del slider
   s42.drawSlider();
 
-  tft.setTextFont(2);
+  tft.setTextColor(TFT_WHITE);
+  //tft.setTextFont(2);
   b4[2].drawButton();
 }
 

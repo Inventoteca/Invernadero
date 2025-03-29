@@ -51,7 +51,8 @@ void drawUI5() {
   s51.drawSlider();
   s52.drawSlider();
 
-  tft.setTextFont(2);
+  tft.setTextColor(TFT_WHITE);
+  //tft.setTextFont(2);
   b5[3].drawButton();
 }
 

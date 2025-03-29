@@ -43,7 +43,8 @@ void drawUI6() {
   drawBitmapScale(&tft, 10,  120, qr_wifi_29, 29, 29, TFT_BLACK, 6);
   drawBitmapScale(&tft, 295, 120, qr_url_25, 25, 25, TFT_BLACK, 7);
 
-  tft.setTextFont(2);
+  tft.setTextColor(TFT_WHITE);
+  //tft.setTextFont(2);
   b6.drawButton();
 }
 

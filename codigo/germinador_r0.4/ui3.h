@@ -23,7 +23,8 @@ void drawUI3() {
   b3[0].drawButton(); //normal
   s3.drawSlider();
 
-  tft.setTextFont(2);
+  tft.setTextColor(TFT_WHITE);
+  //tft.setTextFont(2);
   b3[1].drawButton();
 }
 

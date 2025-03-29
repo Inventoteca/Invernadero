@@ -55,8 +55,9 @@ void drawUI0() {
   tft.drawString(String(humedad_suelo) + "%  ", btx0[2], bty0[2]);
 
   // Grupo 2
-  tft.setTextFont(2);
+  //tft.setTextFont(2);
   tft.setTextSize(1);
+  tft.setTextColor(TFT_WHITE);
   for (uint8_t i = 3; i < 5; i++) {
     b0[i].drawButton(); //normal
     tft.drawXBitmap(bix0[i], biy0[i], bi0[i], 32, 32, ICON); //TFT_CYAN

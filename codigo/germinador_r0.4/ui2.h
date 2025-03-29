@@ -23,7 +23,8 @@ void drawUI2() {
   b2[0].drawButton(); //normal
   s2.drawSlider();
 
-  tft.setTextFont(2);
+  tft.setTextColor(TFT_WHITE);
+  //tft.setTextFont(2);
   b2[1].drawButton();
 }
 
